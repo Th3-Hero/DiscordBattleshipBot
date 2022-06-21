@@ -7,7 +7,6 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import java.awt.Color;
 
 public class Help {
-    // For later expansion to support multipule help commands (Pass event not channel)
     public static void displayHelpMessage(MessageChannel channel) {
         channel.sendMessageEmbeds(helpMessage()).queue();
     }
@@ -24,6 +23,11 @@ public class Help {
         .addField(
             "$Ping",
             "Used to ping the bot to make sure it's working",
+            false
+        )
+        .addField(
+            "$Challenge",
+            "Challenge a member to a game of battleship.",
             false
         )
         .build();

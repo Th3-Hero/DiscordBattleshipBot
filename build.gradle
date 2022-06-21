@@ -28,7 +28,8 @@ dependencies {
         exclude module: 'opus-java'
     }
     // DB
-    implementation 'com.google.code.gson:gson:2.9.0'
+    runtimeOnly 'org.postgresql:postgresql'
+	implementation 'org.flywaydb:flyway-core'
     // Lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
