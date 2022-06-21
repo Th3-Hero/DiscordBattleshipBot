@@ -3,12 +3,12 @@ package com.th3hero.discordbattleshipbot.game;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 
 import java.awt.Color;
 import java.util.List;
 
+import com.th3hero.discordbattleshipbot.objects.ClickRequest;
 import com.th3hero.discordbattleshipbot.objects.CommandRequest;
 
 public class GameCreator {
@@ -26,20 +26,24 @@ public class GameCreator {
         ).queue();
     }
 
-    public static void updateGameRequest(ButtonClickEvent event, String action) {
+    public static void updateGameRequest(ClickRequest request) {
 
-        String player2 = event.getUser().getName();
-        if (action == "ACCEPT") {
-            MessageEmbed acceptedEmbed = acceptGameEmbed("Player1", player2);
-            event.getMessage().editMessageEmbeds(acceptedEmbed) // Update Embed
-                     .setActionRows() // Strip Buttons
-                     .queue();
-        } 
-        else {
-            MessageEmbed declinedEmbed = declineGameEmbed("Player1", event.getUser().getName());
-                event.editMessageEmbeds(declinedEmbed) // Update Embed
-                     .setActionRows() // Strip Buttons
-                     .queue();
+        String player2 = request.getUser().getName();
+        switch (request.getAction()) {
+            case ACCEPT:
+                MessageEmbed acceptedEmbed = acceptGameEmbed("Player1", player2);
+                request.getMessage().editMessageEmbeds(acceptedEmbed) // Update Embed
+                        .setActionRows() // Strip Buttons
+                        .queue();
+                break;
+            case DECLINE:
+                MessageEmbed declinedEmbed = declineGameEmbed("Player1", player2);
+                    request.getMessage().editMessageEmbeds(declinedEmbed) // Update Embed
+                        .setActionRows() // Strip Buttons
+                        .queue();
+                break;
+        
+            default:
         }
     }
 

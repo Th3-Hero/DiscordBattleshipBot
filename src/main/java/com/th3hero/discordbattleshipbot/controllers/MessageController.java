@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import com.th3hero.discordbattleshipbot.game.GameCreator;
+import com.th3hero.discordbattleshipbot.objects.ClickRequest;
 import com.th3hero.discordbattleshipbot.objects.CommandRequest;
 import com.th3hero.discordbattleshipbot.utils.*;
 
@@ -36,15 +37,17 @@ public class MessageController extends ListenerAdapter {
     }
 
     @Override
-    public void onButtonClick(ButtonClickEvent event) {
-        switch (event.getComponentId()) {
-            case "ACCEPT":
-                GameCreator.updateGameRequest(event, "ACCEPT");
-                break;
-            case "DECLINE":
-                GameCreator.updateGameRequest(event, "DECLINE");
-                break;
-            default:
+    public void onButtonClick(final ButtonClickEvent event) {
+        try {
+            final ClickRequest request = ClickRequest.create(event);
+            if (request.getAction() == null) {
+                return;
+            }
+            else {
+                buttonHandler(request);
+            }
+        } catch (Exception e) {
+            event.getChannel().sendMessage("Something went impossibly wrong").queue();
         }
     }
 
@@ -61,6 +64,36 @@ public class MessageController extends ListenerAdapter {
                 break;
         
             default:
+        }
+    }
+
+    public void buttonHandler(final ClickRequest request) {
+        switch (request.getAction()) {
+            case ACCEPT:
+                GameCreator.updateGameRequest(request);
+                break;
+            case DECLINE:
+                GameCreator.updateGameRequest(request);
+                break;
+            default:
+        }
+    }
+
+
+    public enum ClickEvent {
+        ACCEPT,
+        DECLINE;
+
+        public static ClickEvent value(final String command) {
+            if (command == null) {
+                return null;
+            }
+
+            try {
+                return valueOf(command.toUpperCase());
+            } catch (final IllegalArgumentException e) {
+                return null;
+            }
         }
     }
 
