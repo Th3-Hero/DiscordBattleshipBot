@@ -1,0 +1,17 @@
+CREATE TABLE player (
+    player_id VARCHAR(80) NOT NULL PRIMARY KEY,
+    wins INTEGER NOT NULL,
+    losses INTEGER NOT NULL,
+    hits INTEGER NOT NULL,
+    misses INTEGER NOT NULL,
+    ships_sunk INTEGER NOT NULL,
+    ships_lost INTEGER NOT NULL
+);
+
+CREATE SEQUENCE seq_game_id START WITH 1 INCREMENT BY 1;
+CREATE TABLE game (
+    game_id VARCHAR(80) NOT NULL PRIMARY KEY,
+    player_1 VARCHAR(80) NOT NULL,
+    player_2 VARCHAR(80) NOT NULL,
+    game_active BOOLEAN
+)

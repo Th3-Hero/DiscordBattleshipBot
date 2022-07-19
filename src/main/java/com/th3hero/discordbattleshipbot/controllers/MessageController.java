@@ -6,14 +6,18 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import com.th3hero.discordbattleshipbot.game.GameCreator;
+import com.th3hero.discordbattleshipbot.services.GameCreator;
 import com.th3hero.discordbattleshipbot.objects.ClickRequest;
 import com.th3hero.discordbattleshipbot.objects.CommandRequest;
 import com.th3hero.discordbattleshipbot.utils.*;
 
+import lombok.RequiredArgsConstructor;
+
 
 @Controller
+@RequiredArgsConstructor
 public class MessageController extends ListenerAdapter {
+    private final GameCreator gameCreator;
 
     @Override
     public void onMessageReceived(final MessageReceivedEvent event) {
@@ -47,7 +51,7 @@ public class MessageController extends ListenerAdapter {
                 buttonHandler(request);
             }
         } catch (Exception e) {
-            event.getChannel().sendMessage("Something went impossibly wrong").queue();
+            event.getChannel().sendMessage("Something went impossibly wrong... well I guess it was possible").queue();
         }
     }
 
@@ -60,9 +64,8 @@ public class MessageController extends ListenerAdapter {
                 Help.displayHelpMessage(request.getChannel());
                 break;
             case CHALLENGE:
-                GameCreator.gameRequest(request);
+                gameCreator.gameRequest(request);
                 break;
-        
             default:
         }
     }
@@ -70,10 +73,10 @@ public class MessageController extends ListenerAdapter {
     public void buttonHandler(final ClickRequest request) {
         switch (request.getAction()) {
             case ACCEPT:
-                GameCreator.updateGameRequest(request);
+                gameCreator.updateGameRequest(request);
                 break;
             case DECLINE:
-                GameCreator.updateGameRequest(request);
+                gameCreator.updateGameRequest(request);
                 break;
             default:
         }

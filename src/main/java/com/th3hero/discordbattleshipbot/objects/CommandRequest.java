@@ -17,7 +17,7 @@ import com.th3hero.discordbattleshipbot.controllers.MessageController;
 @Builder
 public class CommandRequest {
     private User requester;
-    private List<User> mentionedUserName;
+    private List<User> mentionedUser;
     private MessageChannel channel;
     private MessageController.Command command;
     private boolean validToken;
@@ -40,7 +40,7 @@ public class CommandRequest {
     public static CommandRequest request(final Message message, final String command, final String token, final List<String> arguments) {
         return CommandRequest.builder()
             .requester(message.getAuthor())
-            .mentionedUserName(message.getMentionedUsers())
+            .mentionedUser(message.getMentionedUsers())
             .channel(message.getChannel())
             .command(MessageController.Command.value(command))
             .validToken(token.equals("$"))
