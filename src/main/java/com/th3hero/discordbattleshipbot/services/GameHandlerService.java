@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 public class GameHandlerService {
     private final GameRepository gameRepository;
 
-    public Game fetchGame(String gameId){
+    public Game fetchGame(int gameId){
         if (gameRepository.existsById(gameId)) {
             return gameRepository.findById(gameId).get();
         }
@@ -22,6 +22,6 @@ public class GameHandlerService {
     }
 
     public Game createGame(String player1, String player2){
-        return gameRepository.save(Game.create(player1, player2, null));
+        return gameRepository.save(Game.create(player1, player2));
     }
 }

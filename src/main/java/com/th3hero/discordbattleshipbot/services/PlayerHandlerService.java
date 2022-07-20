@@ -17,7 +17,7 @@ public class PlayerHandlerService {
             return playerRepository.findById(playerId).get();
         }
         else {
-            return playerRepository.save(Player.create(playerId, 0, 0, 0, 0, 0, 0));
+            return playerRepository.save(Player.create(playerId));
         }
     }
 }

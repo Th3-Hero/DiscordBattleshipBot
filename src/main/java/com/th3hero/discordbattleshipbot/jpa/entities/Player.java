@@ -33,41 +33,35 @@ public class Player implements Serializable {
 
     // Player Stats
     @NotNull
+    @Builder.Default
     @Column
-    private int wins;
+    private Integer wins = 0;
     @NotNull
+    @Builder.Default
     @Column
-    private int losses;
+    private Integer losses = 0;
     @NotNull
+    @Builder.Default
     @Column
-    private int hits;
+    private Integer hits = 0;
     @NotNull
+    @Builder.Default
     @Column
-    private int misses;
+    private Integer misses = 0;
     @NotNull
+    @Builder.Default
     @Column
-    private int shipsSunk;
+    private Integer shipsSunk = 0;
     @NotNull
+    @Builder.Default
     @Column
-    private int shipsLost;
+    private Integer shipsLost = 0;
 
     public static Player create(
-        final String playerId,
-        final int wins,
-        final int losses,
-        final int hits,
-        final int misses,
-        final int shipsSunk,
-        final int shipsLost
+        final String playerId
     ) {
         return Player.builder()
             .playerId(playerId)
-            .wins(wins)
-            .losses(losses)
-            .hits(hits)
-            .misses(misses)
-            .shipsSunk(shipsSunk)
-            .shipsLost(shipsLost)
             .build();
     }
 }

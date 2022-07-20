@@ -2,6 +2,7 @@ package com.th3hero.discordbattleshipbot.objects;
 
 import lombok.Builder;
 import lombok.Getter;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -19,6 +20,7 @@ public class CommandRequest {
     private User requester;
     private List<User> mentionedUser;
     private MessageChannel channel;
+    private Guild server;
     private MessageController.Command command;
     private boolean validToken;
     private List<String> arguments;
@@ -41,6 +43,7 @@ public class CommandRequest {
         return CommandRequest.builder()
             .requester(message.getAuthor())
             .mentionedUser(message.getMentionedUsers())
+            .server(message.getGuild())
             .channel(message.getChannel())
             .command(MessageController.Command.value(command))
             .validToken(token.equals("$"))

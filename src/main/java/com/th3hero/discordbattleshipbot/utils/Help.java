@@ -6,6 +6,10 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import java.awt.Color;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Help {
     public static void displayHelpMessage(MessageChannel channel) {
         channel.sendMessageEmbeds(helpMessage()).queue();
@@ -14,7 +18,7 @@ public class Help {
     public static MessageEmbed helpMessage() {
         return new EmbedBuilder()
         .setColor(new Color(58, 235, 52))
-        .setTitle("Economy Bot Help")
+        .setTitle("Battleship Bot Help")
         .addField(
             "$Help",
             "Used to Display this message.",

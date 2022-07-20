@@ -1,7 +1,10 @@
 package com.th3hero.discordbattleshipbot.utils;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Ping {
     public static void pingBot(MessageChannel channel) {
         long time = System.currentTimeMillis();

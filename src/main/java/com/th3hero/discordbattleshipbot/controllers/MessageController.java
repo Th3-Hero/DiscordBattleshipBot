@@ -12,8 +12,9 @@ import com.th3hero.discordbattleshipbot.objects.CommandRequest;
 import com.th3hero.discordbattleshipbot.utils.*;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class MessageController extends ListenerAdapter {
@@ -36,6 +37,7 @@ public class MessageController extends ListenerAdapter {
 
 
         } catch (Exception e) {
+            log.error("onMessageRecived", e);
             event.getChannel().sendMessage("The command is invalid or an error has occurred").queue();
         }
     }
@@ -51,6 +53,7 @@ public class MessageController extends ListenerAdapter {
                 buttonHandler(request);
             }
         } catch (Exception e) {
+            log.error("onButtonClick", e);
             event.getChannel().sendMessage("Something went impossibly wrong... well I guess it was possible").queue();
         }
     }
