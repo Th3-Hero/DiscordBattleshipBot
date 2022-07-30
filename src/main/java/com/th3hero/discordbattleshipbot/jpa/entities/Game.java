@@ -46,7 +46,10 @@ public class Game implements Serializable {
     private String playerTwo;
 
     @OneToOne(mappedBy = "game")
-    private GameBoard gameboardOne;
+    private GameBoard gameBoardOne;
+
+    @OneToOne(mappedBy = "game")
+    private GameBoard gameBoardTwo;
 
     /**
      * Current status of game

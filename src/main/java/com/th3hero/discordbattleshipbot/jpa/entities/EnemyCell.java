@@ -7,6 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -29,11 +31,20 @@ import lombok.ToString;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class EnemyCell implements Serializable{
     @Id
+    @ToString.Exclude
     @OneToOne
-    private EnemyGrid enemyGrid;
+    @JoinColumn(name = "game_id", referencedColumnName = "game_id")
+    private Game game;
 
     @Id
-    private Integer index;
+    @OneToOne
+    @JoinColumn(name = "player_id", referencedColumnName = "player_id")
+    private Player player;
+
+    @Id
+    @ManyToOne
+    @JoinColumn(name = "cell_index", referencedColumnName = "cell_index")
+    private Integer cellIndex;
 
     @NotNull
     @Enumerated(EnumType.STRING)

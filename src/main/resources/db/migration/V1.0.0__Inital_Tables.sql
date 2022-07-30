@@ -20,15 +20,39 @@ CREATE TABLE game_board (
     game_id INTEGER NOT NULL
     player_id VARCHAR(80) NOT NULL,
     CONSTRAINT game_board_id_pk PRIMARY KEY (game_id, player_id)
-    -- Am lost
+    -- Maybe lost
+)
+
+CREATE TABLE friendly_grid (
+    game_id INTEGER NOT NULL
+    player_id VARCHAR(80) NOT NULL,
+    CONSTRAINT friendly_grid_pk PRIMARY KEY (game_id, player_id)
 )
 
 CREATE TABLE friendly_cell (
+    game_id INTEGER NOT NULL,
+    player_id VARCHAR(80) NOT NULL,
+    cell_index INTEGER NOT NULL,
+
+    CONSTRAINT game_board_id_pk (game_id, player_id),
+    CONSTRAINT cell_id_pk PRIMARY KEY (game_board_id_pk, cell_index)
 
     cell_status VARCHAR(10)
 )
 
+CREATE TABLE enemy_grid (
+    game_id INTEGER NOT NULL
+    player_id VARCHAR(80) NOT NULL,
+    CONSTRAINT enemy_grid_pk PRIMARY KEY (game_id, player_id)
+)
+
 CREATE TABLE enemy_cell (
+    game_id INTEGER NOT NULL,
+    player_id VARCHAR(80) NOT NULL,
+    cell_index INTEGER NOT NULL,
+
+    CONSTRAINT game_board_id_pk (game_id, player_id),
+    CONSTRAINT cell_id_pk PRIMARY KEY (game_board_id_pk, cell_index)
 
     cell_status VARCHAR(10)
 )

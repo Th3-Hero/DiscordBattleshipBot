@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -27,8 +28,15 @@ import lombok.ToString;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class EnemyGrid implements Serializable {
     @Id
+    @ToString.Exclude
     @OneToOne
-    private GameBoard gameBoard;
+    @JoinColumn(name = "game_id", referencedColumnName = "game_id")
+    private Game game;
+
+    @Id
+    @OneToOne
+    @JoinColumn(name = "player_id", referencedColumnName = "player_id")
+    private Player player;
 
     @OneToMany
     private List<EnemyCell> enemyCells;
