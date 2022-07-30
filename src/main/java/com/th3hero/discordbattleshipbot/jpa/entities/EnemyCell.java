@@ -6,10 +6,12 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
@@ -27,24 +29,23 @@ import lombok.ToString;
 @Builder
 @ToString
 @Table(name = "enemy_cell")
+@IdClass(EnemyCellKey.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class EnemyCell implements Serializable{
     @Id
     @ToString.Exclude
-    @OneToOne
-    @JoinColumn(name = "game_id", referencedColumnName = "game_id")
-    private Game game;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumns(value = {
+        @JoinColumn(name = "game_id", referencedColumnName = "game_id"),
+        @JoinColumn(name = "player_id", referencedColumnName = "player_id")
+    })
+    private GameBoard gameBoard;
 
     @Id
-    @OneToOne
-    @JoinColumn(name = "player_id", referencedColumnName = "player_id")
-    private Player player;
-
-    @Id
-    @ManyToOne
-    @JoinColumn(name = "cell_index", referencedColumnName = "cell_index")
+    @Column
     private Integer cellIndex;
+
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -64,6 +65,6 @@ public class EnemyCell implements Serializable{
 @NoArgsConstructor
 @AllArgsConstructor
 class EnemyCellKey implements Serializable {
-    private EnemyGrid enemyGrid;
-    private Integer index;
+    private GameBoard gameBoard;
+    private Integer cellIndex;
 }
