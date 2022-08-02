@@ -46,12 +46,11 @@ public class EnemyCell implements Serializable{
     @Column
     private Integer cellIndex;
 
-
     @NotNull
     @Enumerated(EnumType.STRING)
     @Builder.Default
     @Column
-    private CellStatus cell = CellStatus.EMPTY;
+    private CellStatus cellStatus = CellStatus.EMPTY;
 
     public enum CellStatus {
         EMPTY,

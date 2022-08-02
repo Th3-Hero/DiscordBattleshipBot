@@ -3,6 +3,7 @@ package com.th3hero.discordbattleshipbot.jpa.entities;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -24,14 +25,13 @@ import lombok.ToString;
 @Setter
 @Entity
 @Builder
-@ToString
+@ToString(onlyExplicitlyIncluded = true)
 @Table(name = "game_board")
 @IdClass(GameBoardKey.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class GameBoard implements Serializable {
     @Id
-    @ToString.Exclude
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "game_id", referencedColumnName = "game_id")
     private Game game;
@@ -41,11 +41,18 @@ public class GameBoard implements Serializable {
     @JoinColumn(name = "player_id", referencedColumnName = "player_id")
     private Player player;
 
-    @OneToMany(mappedBy = "gameBoard", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "gameBoard", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FriendlyCell> friendlyCells;
 
-    @OneToMany(mappedBy = "gameBoard", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "gameBoard", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EnemyCell> enemyCells;
+
+    public static GameBoard create(Game game, Player player) {
+        return GameBoard.builder()
+            .game(game)
+            .player(player)
+            .build();
+    }
 
 }
 

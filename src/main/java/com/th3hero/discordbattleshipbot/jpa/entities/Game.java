@@ -1,15 +1,18 @@
 package com.th3hero.discordbattleshipbot.jpa.entities;
 
 import java.io.Serializable;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -45,11 +48,8 @@ public class Game implements Serializable {
     @Column
     private String playerTwo;
 
-    @OneToOne(mappedBy = "game")
-    private GameBoard gameBoardOne;
-
-    @OneToOne(mappedBy = "game")
-    private GameBoard gameBoardTwo;
+    @OneToMany(mappedBy = "game", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<GameBoard> gameBoards;
 
     /**
      * Current status of game
@@ -58,7 +58,6 @@ public class Game implements Serializable {
      *  <li>ACTIVE - Game has been started</li>
      *  <li>ENDED - Game is over</li>
      * </ul>
-     * @param gameStatus Update game status
      */
     @NotNull
     @Enumerated(EnumType.STRING)

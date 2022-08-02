@@ -17,9 +17,12 @@ import org.springframework.stereotype.Service;
 
 import com.th3hero.discordbattleshipbot.enums.ChannelPermissions;
 import com.th3hero.discordbattleshipbot.jpa.entities.Game;
+import com.th3hero.discordbattleshipbot.jpa.entities.GameBoard;
+import com.th3hero.discordbattleshipbot.jpa.entities.Player;
 import com.th3hero.discordbattleshipbot.jpa.entities.Game.GameStatus;
 import com.th3hero.discordbattleshipbot.objects.ClickRequest;
 import com.th3hero.discordbattleshipbot.objects.CommandRequest;
+import com.th3hero.discordbattleshipbot.repositories.GameRepository;
 import com.th3hero.discordbattleshipbot.utils.StringUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -29,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 public class GameCreator {
     private final PlayerHandlerService playerHandlerService;
     private final GameHandlerService gameHandlerService;
+    private final GameRepository gameRepository;
 
     public void gameRequest(CommandRequest request) {
 
@@ -65,12 +69,14 @@ public class GameCreator {
         Guild server = request.getServer();
 
         // Only player2 should be able to accept or decline the challenge
-        if (!interactionUserId.equals(game.getPlayerTwo())) {
-            final String interactionUserName = server.getMemberById(interactionUserId).getEffectiveName();
-            request.getEvent().reply(interactionUserName + " you must be the person challenged to accept or decline.").queue();
+        // ! PUT THIS BACK, REMOVED FOR TESTING
+        // if (!interactionUserId.equals(game.getPlayerTwo())) {
+        //     request.getEvent().reply("You must be the person challenged to accept or decline.")
+        //         .setEphemeral(true).queue();
 
-            return;
-        }
+        //     return;
+        // }
+
         final String gameId = game.getGameId().toString();
         String player1Name = server.getMemberById(game.getPlayerOne()).getEffectiveName();
         String player2Name = server.getMemberById(game.getPlayerTwo()).getEffectiveName();
@@ -80,7 +86,7 @@ public class GameCreator {
                 request.getMessage().editMessageEmbeds(acceptedEmbed) // Update Embed
                         .setActionRows() // Strip Buttons
                         .queue();
-                game.setGameStatus(GameStatus.ACTIVE);
+                gameRepository.save(game);
                 startGame(game, server, server.getGuildChannelById(ChannelType.TEXT, request.getChannel().getId()));
                 break;
             case DECLINE:
@@ -88,13 +94,26 @@ public class GameCreator {
                     request.getMessage().editMessageEmbeds(declinedEmbed) // Update Embed
                         .setActionRows() // Strip Buttons
                         .queue();
+                gameRepository.delete(game);
                 break;
             default:
         }
-        
     }
 
     public void startGame(Game game, Guild server, GuildChannel channel) {
+        game.setGameStatus(GameStatus.ACTIVE);
+        Player playerOne = playerHandlerService.fetchPlayer(game.getPlayerOne());
+        Player playerTwo = playerHandlerService.fetchPlayer(game.getPlayerTwo());
+
+        // Populate game boards
+        List<GameBoard> gameBoards = game.getGameBoards();
+        GameBoard boardOne = gameHandlerService.createBoard(game, playerOne);
+        gameBoards.add(boardOne);
+        GameBoard boardTwo = gameHandlerService.createBoard(game, playerTwo);
+        gameBoards.add(boardTwo);
+        game.setGameBoards(gameBoards);
+
+
         User user1 = server.getMemberById(game.getPlayerOne()).getUser();
         User user2 = server.getMemberById(game.getPlayerTwo()).getUser();
         String player1Name = server.getMemberById(game.getPlayerOne()).getEffectiveName();
@@ -109,6 +128,8 @@ public class GameCreator {
             .addPermissionOverride(server.getPublicRole(), null, EnumSet.of(Permission.VIEW_CHANNEL))
             .setParent(channel.getParent())
             .queue();
+
+        gameRepository.save(game);
     }
 
     static String embedTitle = "Battleship";

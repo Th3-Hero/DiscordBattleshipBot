@@ -22,7 +22,6 @@ CREATE TABLE game_board (
     CONSTRAINT game_board_fk FOREIGN KEY (game_id)
         REFERENCES game (game_id),
     CONSTRAINT game_board_id_pk PRIMARY KEY (game_id, player_id)
-    -- Am bad
 );
 
 CREATE TABLE friendly_cell (
