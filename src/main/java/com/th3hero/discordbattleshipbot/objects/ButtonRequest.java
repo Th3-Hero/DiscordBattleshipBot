@@ -16,7 +16,7 @@ import com.th3hero.discordbattleshipbot.controllers.MessageController;
 
 @Getter
 @Builder
-public class ClickRequest {
+public class ButtonRequest {
     private User user;
     private Message message;
     private MessageChannel channel;
@@ -25,7 +25,7 @@ public class ClickRequest {
     private int actionId;
     private ButtonClickEvent event;
 
-    public static ClickRequest create(final ButtonClickEvent event) {
+    public static ButtonRequest create(final ButtonClickEvent event) {
         // Get raw id from the button
         final String rawId = event.getComponentId();
         // Split the useable id and action apart
@@ -33,12 +33,12 @@ public class ClickRequest {
             .collect(Collectors.toList());
         
         final String action = idSplits.get(1); // the action the button preforms
-        final int actionId = Integer.parseInt(idSplits.get(0)); // the id to link a button to a previous action
+        final int actionId = Integer.parseInt(idSplits.get(0)); // the id to link the button to a previous action
         return request(event, action, actionId);
     }
 
-    public static ClickRequest request(final ButtonClickEvent event, final String action, final int actionId) {
-        return ClickRequest.builder()
+    public static ButtonRequest request(final ButtonClickEvent event, final String action, final int actionId) {
+        return ButtonRequest.builder()
             .event(event)
             .user(event.getUser())
             .message(event.getMessage())

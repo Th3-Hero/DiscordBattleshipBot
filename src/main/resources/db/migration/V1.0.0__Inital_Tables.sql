@@ -19,6 +19,7 @@ CREATE TABLE game (
 CREATE TABLE game_board (
     game_id INTEGER NOT NULL,
     player_id VARCHAR(80) NOT NULL,
+    channel_id VARCHAR(80),
     CONSTRAINT game_board_fk FOREIGN KEY (game_id)
         REFERENCES game (game_id),
     CONSTRAINT game_board_id_pk PRIMARY KEY (game_id, player_id)

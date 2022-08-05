@@ -11,7 +11,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PlayerHandlerService {
     private final PlayerRepository playerRepository;
-    
+
+    /**
+     * Attempts to fetch {@code Player}, if non is found one will be created.
+     * @param playerId -Id of the player(User)
+     * @return Never Null {@code Player}
+     */
     public Player fetchPlayer(String playerId){
         if (playerRepository.existsById(playerId)) {
             return playerRepository.findById(playerId).get();

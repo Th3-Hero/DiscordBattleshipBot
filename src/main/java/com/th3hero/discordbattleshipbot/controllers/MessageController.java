@@ -6,8 +6,8 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import com.th3hero.discordbattleshipbot.services.GameCreator;
-import com.th3hero.discordbattleshipbot.objects.ClickRequest;
+import com.th3hero.discordbattleshipbot.services.GameCreatorService;
+import com.th3hero.discordbattleshipbot.objects.ButtonRequest;
 import com.th3hero.discordbattleshipbot.objects.CommandRequest;
 import com.th3hero.discordbattleshipbot.utils.*;
 
@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @Controller
 @RequiredArgsConstructor
 public class MessageController extends ListenerAdapter {
-    private final GameCreator gameCreator;
+    private final GameCreatorService gameCreator;
 
     @Override
     public void onMessageReceived(final MessageReceivedEvent event) {
@@ -31,10 +31,7 @@ public class MessageController extends ListenerAdapter {
             if (!request.isValidToken() || request.getCommand() == null) {
                 return;
             }
-            else {
-                commandHandler(request);
-            }
-
+            commandHandler(request);
 
         } catch (Exception e) {
             log.error("onMessageRecived", e);
@@ -45,19 +42,22 @@ public class MessageController extends ListenerAdapter {
     @Override
     public void onButtonClick(final ButtonClickEvent event) {
         try {
-            final ClickRequest request = ClickRequest.create(event);
+            final ButtonRequest request = ButtonRequest.create(event);
             if (request.getAction() == null) {
                 return;
             }
-            else {
-                buttonHandler(request);
-            }
+            buttonHandler(request);
+
         } catch (Exception e) {
             log.error("onButtonClick", e);
             event.getChannel().sendMessage("Something went impossibly wrong... well I guess it was possible").queue();
         }
     }
 
+    /**
+     * Directs all text commands
+     * @param request
+     */
     public void commandHandler(final CommandRequest request) {
         switch (request.getCommand()) {
             case PING:
@@ -73,24 +73,37 @@ public class MessageController extends ListenerAdapter {
         }
     }
 
-    public void buttonHandler(final ClickRequest request) {
+    /**
+     * Directs all button events
+     * @param request
+     */
+    public void buttonHandler(final ButtonRequest request) {
         switch (request.getAction()) {
             case ACCEPT:
-                gameCreator.updateGameRequest(request);
+                gameCreator.acceptGame(request);
                 break;
             case DECLINE:
-                gameCreator.updateGameRequest(request);
+                gameCreator.declineGame(request);
                 break;
             default:
         }
     }
 
-
-    public enum ClickEvent {
-        ACCEPT,
-        DECLINE;
-
-        public static ClickEvent value(final String command) {
+    public enum Command {
+        HELP,
+        PING,
+        CHALLENGE;
+        
+        
+        /**
+         * Null safe, case-insensitive {@code valueOf} call that returns null rather than an error if no result is found.
+         *
+         * @param command
+         *      The value to find an enum for. May be null
+         * @return
+         *      The resulting enum, or null if not found
+         */
+        public static Command value(final String command) {
             if (command == null) {
                 return null;
             }
@@ -103,11 +116,9 @@ public class MessageController extends ListenerAdapter {
         }
     }
 
-    public enum Command {
-        HELP,
-        PING,
-        CHALLENGE;
-
+    public enum ClickEvent {
+        ACCEPT,
+        DECLINE;
 
         /**
          * Null safe, case-insensitive {@code valueOf} call that returns null rather than an error if no result is found.
@@ -117,7 +128,7 @@ public class MessageController extends ListenerAdapter {
          * @return
          *      The resulting enum, or null if not found
          */
-        public static Command value(final String command) {
+        public static ClickEvent value(final String command) {
             if (command == null) {
                 return null;
             }

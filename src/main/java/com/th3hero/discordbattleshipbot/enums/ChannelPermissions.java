@@ -2,8 +2,11 @@ package com.th3hero.discordbattleshipbot.enums;
 
 import java.util.EnumSet;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.dv8tion.jda.api.Permission;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ChannelPermissions {
 
     public static EnumSet<Permission> allow() {

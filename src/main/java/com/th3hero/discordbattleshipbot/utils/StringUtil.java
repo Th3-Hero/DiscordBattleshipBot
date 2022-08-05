@@ -3,6 +3,10 @@ package com.th3hero.discordbattleshipbot.utils;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+/**
+ * A collection of useful methods to manipulate strings.
+ * Targeted mostly towards discord.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StringUtil {
 

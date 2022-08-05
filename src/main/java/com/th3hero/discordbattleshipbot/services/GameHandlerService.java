@@ -10,19 +10,22 @@ import com.th3hero.discordbattleshipbot.jpa.entities.FriendlyCell;
 import com.th3hero.discordbattleshipbot.jpa.entities.Game;
 import com.th3hero.discordbattleshipbot.jpa.entities.GameBoard;
 import com.th3hero.discordbattleshipbot.jpa.entities.Player;
-import com.th3hero.discordbattleshipbot.repositories.GameBoardRepository;
 import com.th3hero.discordbattleshipbot.repositories.GameRepository;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GameHandlerService {
     private final GameRepository gameRepository;
-    private final GameBoardRepository gameBoardRepository;
 
+    /**
+     * Attempts to fetch {@code Game}, if non exist returns {@code null}
+     * <p>Since playerIDs are needed to create {@code Game}, {@code fetchGame} is not guaranteed to return {@code Game}</p>
+     * @param gameId
+     * @return {@code Game} or {@code null}
+     * @see <pre><code>GameHandlerService.createGame</code></pre>
+     */
     public Game fetchGame(int gameId){
         if (gameRepository.existsById(gameId)) {
             return gameRepository.findById(gameId).get();
@@ -32,30 +35,54 @@ public class GameHandlerService {
         }
     }
 
-    public Game createGame(String player1, String player2){
-        return gameRepository.save(Game.create(player1, player2));
+    /**
+     * Creates a new game
+     * @param playerOneId -ID of playerOne
+     * @param playerTwoId -ID of playerTwo
+     * @return Never null {@code Game}
+     */
+    public Game createGame(String playerOneId, String playerTwoId){
+        return gameRepository.save(Game.create(playerOneId, playerTwoId));
     }
 
+    /**
+     * Creates a {@code GameBoard} instance
+     * <h2>Important:</h2>
+     * The board returned is NOT assigned to {@code Game} or saved to the DB
+     * @param game
+     * @param player
+     * @return {@code GameBoard}
+     */
     public GameBoard createBoard(Game game, Player player){
 
-        // GameBoard board = GameBoard.create(game, player);
         GameBoard board = GameBoard.builder()
             .player(player)
             .game(game)
             .build();
 
-        // board.setGame(game);
-        // board.setPlayer(player);
         board.setFriendlyCells(createFriendlyCells(board));
         board.setEnemyCells(createEnemyCells(board));
-        log.info("Here1");
 
-        return gameBoardRepository.save(board);
+        return board;
     }
 
+    /**
+     * Deletes {@code Game} and all children from the Database.
+     * <h3>This action can NOT be reversed!</h3>
+     * @param game to be deleted
+     */
+    public void deleteGame(Game game){
+        gameRepository.delete(game);
+    }
+
+    /**
+     * Helper to populate friendly grid on {@code GameBoard}
+     * @param gameBoard
+     * @return {@code List<FriendlyCell>}
+     */
     private List<FriendlyCell> createFriendlyCells(GameBoard gameBoard) {
         List<FriendlyCell> cells = new ArrayList<>();
-        for (int i = 0; i < 99; i++) {
+        for (int i = 0; i < 100; i++) {
             FriendlyCell cell = FriendlyCell.builder()
                 .gameBoard(gameBoard)
                 .cellIndex(i)
@@ -65,9 +92,14 @@ public class GameHandlerService {
         return cells;
     }
 
+    /**
+     * Helper to populate enemy grid on {@code GameBoard}
+     * @param gameBoard
+     * @return {@code List<EnemyCell>}
+     */
     private List<EnemyCell> createEnemyCells(GameBoard gameBoard) {
         List<EnemyCell> cells = new ArrayList<>();
-        for (int i = 0; i < 99; i++) {
+        for (int i = 0; i < 100; i++) {
             EnemyCell cell = EnemyCell.builder()
                 .gameBoard(gameBoard)
                 .cellIndex(i)
