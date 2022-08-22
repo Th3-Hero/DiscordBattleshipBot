@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import com.th3hero.discordbattleshipbot.services.GameCreatorService;
+import com.th3hero.discordbattleshipbot.services.GameHandlerService;
 import com.th3hero.discordbattleshipbot.objects.ButtonRequest;
 import com.th3hero.discordbattleshipbot.objects.CommandRequest;
 import com.th3hero.discordbattleshipbot.utils.*;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class MessageController extends ListenerAdapter {
     private final GameCreatorService gameCreator;
+    private final GameHandlerService gameHandlerService;
 
     @Override
     public void onMessageReceived(final MessageReceivedEvent event) {
@@ -34,7 +36,7 @@ public class MessageController extends ListenerAdapter {
             commandHandler(request);
 
         } catch (Exception e) {
-            log.error("onMessageRecived", e);
+            log.error("onMessageReceived", e);
             event.getChannel().sendMessage("The command is invalid or an error has occurred").queue();
         }
     }
@@ -69,6 +71,12 @@ public class MessageController extends ListenerAdapter {
             case CHALLENGE:
                 gameCreator.gameRequest(request);
                 break;
+            case DELGAME:
+                gameHandlerService.deleteGame(request);
+                break;
+            case APOCABLOOM:
+                request.getChannel().sendMessageEmbeds(EmbedBuilderFactory.apocaBloom()).queue();
+                break;
             default:
         }
     }
@@ -89,55 +97,4 @@ public class MessageController extends ListenerAdapter {
         }
     }
 
-    public enum Command {
-        HELP,
-        PING,
-        CHALLENGE;
-        
-        
-        /**
-         * Null safe, case-insensitive {@code valueOf} call that returns null rather than an error if no result is found.
-         *
-         * @param command
-         *      The value to find an enum for. May be null
-         * @return
-         *      The resulting enum, or null if not found
-         */
-        public static Command value(final String command) {
-            if (command == null) {
-                return null;
-            }
-
-            try {
-                return valueOf(command.toUpperCase());
-            } catch (final IllegalArgumentException e) {
-                return null;
-            }
-        }
-    }
-
-    public enum ClickEvent {
-        ACCEPT,
-        DECLINE;
-
-        /**
-         * Null safe, case-insensitive {@code valueOf} call that returns null rather than an error if no result is found.
-         *
-         * @param command
-         *      The value to find an enum for. May be null
-         * @return
-         *      The resulting enum, or null if not found
-         */
-        public static ClickEvent value(final String command) {
-            if (command == null) {
-                return null;
-            }
-
-            try {
-                return valueOf(command.toUpperCase());
-            } catch (final IllegalArgumentException e) {
-                return null;
-            }
-        }
-    }
 }

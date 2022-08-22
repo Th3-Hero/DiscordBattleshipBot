@@ -22,4 +22,15 @@ public class StringUtil {
         return "_" + string + "_";
     }
 
+    /**
+     * Escapes special characters used in discord markdown
+     * @param string
+     * @return discord markdown safe string
+     */
+    public static String escapeSpecialCharacters(String string) {
+        return string
+            .replace("_", "\\_")
+            .replace("*", "\\*")
+            .replace("~", "\\~");
+    }
 }

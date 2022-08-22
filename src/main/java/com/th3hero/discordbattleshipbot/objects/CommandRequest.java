@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.th3hero.discordbattleshipbot.controllers.MessageController;
+import com.th3hero.discordbattleshipbot.enums.Interactions;
 
 @Getter
 @Builder
@@ -21,7 +21,7 @@ public class CommandRequest {
     private List<User> mentionedUsers;
     private MessageChannel channel;
     private Guild server;
-    private MessageController.Command command;
+    private Interactions.Command command;
     private boolean validToken;
     private List<String> arguments;
 
@@ -45,7 +45,7 @@ public class CommandRequest {
             .mentionedUsers(message.getMentionedUsers())
             .server(message.getGuild())
             .channel(message.getChannel())
-            .command(MessageController.Command.value(command))
+            .command(Interactions.Command.value(command))
             .validToken(token.equals("$"))
             .arguments(arguments)
             .build();

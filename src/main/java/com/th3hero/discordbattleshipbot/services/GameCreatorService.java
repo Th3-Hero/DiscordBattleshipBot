@@ -1,21 +1,23 @@
 package com.th3hero.discordbattleshipbot.services;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.components.Button;
 
-import java.awt.Color;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
 import com.th3hero.discordbattleshipbot.enums.ChannelPermissions;
+import com.th3hero.discordbattleshipbot.jpa.entities.EnemyCell;
+import com.th3hero.discordbattleshipbot.jpa.entities.FriendlyCell;
 import com.th3hero.discordbattleshipbot.jpa.entities.Game;
 import com.th3hero.discordbattleshipbot.jpa.entities.GameBoard;
 import com.th3hero.discordbattleshipbot.jpa.entities.Player;
@@ -24,7 +26,8 @@ import com.th3hero.discordbattleshipbot.objects.ButtonRequest;
 import com.th3hero.discordbattleshipbot.objects.CommandRequest;
 import com.th3hero.discordbattleshipbot.repositories.GameRepository;
 import com.th3hero.discordbattleshipbot.utils.AuthorizedAction;
-import com.th3hero.discordbattleshipbot.utils.StringUtil;
+import com.th3hero.discordbattleshipbot.utils.EmbedBuilderFactory;
+import com.th3hero.discordbattleshipbot.utils.FindUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -59,7 +62,7 @@ public class GameCreatorService {
         String playerOneName = server.getMember(user1).getEffectiveName();
         String playerTwoName = server.getMember(user2).getEffectiveName();
 
-        request.getChannel().sendMessageEmbeds(challengeRequestBuilder(playerOneName, playerTwoName, gameId)).setActionRow(
+        request.getChannel().sendMessageEmbeds(EmbedBuilderFactory.challengeRequestBuilder(playerOneName, playerTwoName, gameId)).setActionRow(
             Button.success(gameId + "-ACCEPT", "Accept"),
             Button.danger(gameId + "-DECLINE", "Decline")
         ).queue();
@@ -74,7 +77,7 @@ public class GameCreatorService {
 
         // Only player2 can accept
         // ! DISABLE DEVMODE WHEN DONE TESTING
-        if (!AuthorizedAction.permittedAction(request, game.getPlayerTwo(), false)) {
+        if (!AuthorizedAction.permittedAction(request, game.getPlayerTwo(), true)) {
             return;
         }
 
@@ -85,7 +88,7 @@ public class GameCreatorService {
         String playerTwoName = server.getMemberById(game.getPlayerTwo()).getEffectiveName();
 
         // Update challenge embed
-        MessageEmbed acceptedEmbed = acceptGameEmbed(playerOneName, playerTwoName, gameId);
+        MessageEmbed acceptedEmbed = EmbedBuilderFactory.acceptGameEmbed(playerOneName, playerTwoName, gameId);
             request.getMessage().editMessageEmbeds(acceptedEmbed)
                 .setActionRows() // Strip Buttons
                 .queue();
@@ -102,7 +105,7 @@ public class GameCreatorService {
 
         // Only player2 can decline
         // ! DISABLE DEVMODE WHEN DONE TESTING
-        if (!AuthorizedAction.permittedAction(request, game.getPlayerTwo(), false)) {
+        if (!AuthorizedAction.permittedAction(request, game.getPlayerTwo(), true)) {
             return;
         }
 
@@ -112,11 +115,11 @@ public class GameCreatorService {
         String playerTwoName = server.getMemberById(game.getPlayerTwo()).getEffectiveName();
 
         // Update challenge embed
-        MessageEmbed declinedEmbed = declineGameEmbed(playerOneName, playerTwoName, gameId);
+        MessageEmbed declinedEmbed = EmbedBuilderFactory.declineGameEmbed(playerOneName, playerTwoName, gameId);
             request.getMessage().editMessageEmbeds(declinedEmbed)
             .setActionRows() // Strip Buttons
             .queue();
-        
+
         // Delete game from DB, it's no longer needed
         gameRepository.delete(game);
     }
@@ -144,6 +147,7 @@ public class GameCreatorService {
             gameBoards.add(boardOne);
             game.setGameBoards(gameBoards);
             gameRepository.save(game);
+            displayCellsToUnicodeGrid(server, success, boardOne);
         });
 
         // playerTwo setup
@@ -159,84 +163,70 @@ public class GameCreatorService {
             gameBoards.add(boardTwo);
             game.setGameBoards(gameBoards);
             gameRepository.save(game);
+            displayCellsToUnicodeGrid(server, success, boardTwo);
         });
+
     }
 
-    
-    static String embedTitle = "Battleship";
-    static String gameEmbed = "GameID #";
-    /**
-     * Generates embed for a game that has been accepted.
-     * @param playerOneName -PlayerOne's effective name
-     * @param playerTwoName -PlayerTwo's effective name
-     * @param gameId -Game ID
-     * @return <pre><code>MessageEmbed</code></pre>
-     */
-    public static MessageEmbed acceptGameEmbed(String playerOneName, String playerTwoName, String gameId) {
-        return new EmbedBuilder()
-        .setColor(new Color(0, 255, 0))
-        .setTitle(embedTitle)
-        .addField(
-            playerOneName + " vs " + playerTwoName,
-            "PUT STATS REEEEE",
-            false)
-        .addField(
-            "",
-            gameEmbed + StringUtil.toBold(gameId),
-            false
-        )
-        .build();
-    }
 
-    /**
-     * Generates embed for a game that has been declined.
-     * @param playerOneName -PlayerOne's effective name
-     * @param playerTwoName -PlayerTwo's effective name
-     * @param gameId -Game ID
-     * @return <pre><code>MessageEmbed</code></pre>
-     */
-    public static MessageEmbed declineGameEmbed(String playerOneName, String playerTwoName, String gameId) {
-        return new EmbedBuilder()
-        .setColor(new Color(255, 8, 0))
-        .setTitle(embedTitle)
-        .addField(
-            playerOneName + " vs " + playerTwoName,
-            StringUtil.toBold(playerTwoName) + " declined the match.",
-            false
-        )
-        .addField(
-            "",
-            gameEmbed + StringUtil.toBold(gameId),
-            false
-        )
-        .build();
-    }
+    public void displayCellsToUnicodeGrid(Guild server, TextChannel channel, GameBoard board) {
+        List<String> rowsList = Arrays.asList("0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣");
+        List<String> columnList = Arrays.asList("🟦","🇦", "🇧", "🇨", "🇩","🇪","🇫","🇬","🇭","🇮","🇯");
+        StringBuilder columns = new StringBuilder();
+        for (String letter : columnList) {
+            columns.append("‎");
+            columns.append(letter);
+        }
+        List<FriendlyCell> friendlyCellList = board.getFriendlyCells();
+        List<EnemyCell> enemyCellList = board.getEnemyCells();
+        StringBuilder friendlyCellGrid = new StringBuilder();
+        StringBuilder enemyCellGrid = new StringBuilder();
 
-    /**
-     * Generates embed for a new challenge.
-     * @param playerOneName -PlayerOne's effective name
-     * @param playerTwoName -PlayerTwo's effective name
-     * @param gameId -Game ID
-     * @return <pre><code>MessageEmbed</code></pre>
-     */
-    public static MessageEmbed challengeRequestBuilder(String playerOneName, String playerTwoName, String gameId) {
-        return new EmbedBuilder()
-        .setColor(new Color(3, 123, 252))
-        .setTitle(embedTitle)
-        .addField(
-            playerOneName + " vs " + playerTwoName,
-            "Stats",
-            false)
-        .addField(
-            "",
-            StringUtil.toBold(playerTwoName) + " do you choose to accept?",
-            false
-        )
-        .addField(
-            "",
-            gameEmbed + StringUtil.toBold(gameId),
-            false
-        )
-        .build();
+        friendlyCellGrid.append(columns);
+        enemyCellGrid.append(columns);
+        for (int i = 0; i < 100; i++) {
+            if (i % 10 == 0) {
+                friendlyCellGrid.append("\n");
+                enemyCellGrid.append("\n");
+                friendlyCellGrid.append(rowsList.get(i/10));
+                enemyCellGrid.append(rowsList.get(i/10));
+            }
+            FriendlyCell.CellStatus friendlyCellStatus = FindUtil.findFriendlyCellByIndex(friendlyCellList, i).getCellStatus();
+            switch (friendlyCellStatus) {
+                case EMPTY:
+                    friendlyCellGrid.append("🟦");
+                    break;
+                case SHIP:
+                    friendlyCellGrid.append("⬛");
+                    break;
+                case MISS:
+                    friendlyCellGrid.append("❕");
+                    break;
+                case SHIPHIT:
+                    friendlyCellGrid.append("❌");
+                    break;
+                default:
+                    break;
+            }
+            EnemyCell.CellStatus enemyCellStatus = FindUtil.findEnemyCellByIndex(enemyCellList, i).getCellStatus();
+            switch (enemyCellStatus) {
+                case EMPTY:
+                    enemyCellGrid.append("🟦");
+                    break;
+                case HIT:
+                    enemyCellGrid.append("❌");
+                    break;
+                case MISS:
+                    enemyCellGrid.append("❕");
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        List<MessageEmbed> boardsEmbed = EmbedBuilderFactory.boardDisplay(friendlyCellGrid.toString(), enemyCellGrid.toString());
+        server.getTextChannelById(channel.getId())
+            .sendMessageEmbeds(boardsEmbed.get(0), boardsEmbed.get(1))
+            .queue();
     }
 }

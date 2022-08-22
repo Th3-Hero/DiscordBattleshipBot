@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.th3hero.discordbattleshipbot.controllers.MessageController;
+import com.th3hero.discordbattleshipbot.enums.Interactions;
 
 @Getter
 @Builder
@@ -21,7 +21,7 @@ public class ButtonRequest {
     private Message message;
     private MessageChannel channel;
     private Guild server;
-    private MessageController.ClickEvent action;
+    private Interactions.ClickEvent action;
     private int actionId;
     private ButtonClickEvent event;
 
@@ -44,7 +44,7 @@ public class ButtonRequest {
             .message(event.getMessage())
             .channel(event.getChannel())
             .server(event.getGuild())
-            .action(MessageController.ClickEvent.value(action))
+            .action(Interactions.ClickEvent.value(action))
             .actionId(actionId)
             .build();
     }

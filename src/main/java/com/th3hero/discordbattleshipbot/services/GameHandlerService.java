@@ -10,9 +10,11 @@ import com.th3hero.discordbattleshipbot.jpa.entities.FriendlyCell;
 import com.th3hero.discordbattleshipbot.jpa.entities.Game;
 import com.th3hero.discordbattleshipbot.jpa.entities.GameBoard;
 import com.th3hero.discordbattleshipbot.jpa.entities.Player;
+import com.th3hero.discordbattleshipbot.objects.CommandRequest;
 import com.th3hero.discordbattleshipbot.repositories.GameRepository;
 
 import lombok.RequiredArgsConstructor;
+import net.dv8tion.jda.api.entities.Guild;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +35,24 @@ public class GameHandlerService {
         else {
             return null;
         }
+    }
+
+    /**
+     * Attempts to fetch {@code Game} by using {@code channelId} from one of the {@code GameBoard}s
+     * @param channelId
+     * @return {@code Game} or {@code null}
+     */
+    public Game fetchGameByChannel(String channelId) {
+        List<Game> gamesList = gameRepository.findAll();
+        for (Game game : gamesList) {
+            List<GameBoard> boardList = game.getGameBoards();
+            for (GameBoard board : boardList) {
+                if (board.getChannelId().equals(channelId)) {
+                    return game;
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -72,6 +92,27 @@ public class GameHandlerService {
      * @param game to be deleted
      */
     public void deleteGame(Game game){
+        gameRepository.delete(game);
+    }
+
+    /**
+     * Deletes {@code Game} and all children from the Database.
+     * Deletes channels associated with the {@code GameBoard}s
+     * <h3>This action can NOT be reversed!</h3>
+     * @param request
+     */
+    public void deleteGame(CommandRequest request){
+        Guild server = request.getServer();
+        Game game = fetchGameByChannel(request.getChannel().getId());
+
+        if (game == null) {
+            return;
+        }
+        List<GameBoard> boards = game.getGameBoards();
+
+        for (GameBoard gameBoard : boards) {
+            server.getTextChannelById(gameBoard.getChannelId()).delete().queue();
+        }
         gameRepository.delete(game);
     }
 
