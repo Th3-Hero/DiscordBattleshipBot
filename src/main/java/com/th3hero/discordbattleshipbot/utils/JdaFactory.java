@@ -1,6 +1,7 @@
 package com.th3hero.discordbattleshipbot.utils;
 
-import javax.security.auth.login.LoginException;
+
+import java.security.GeneralSecurityException;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -18,10 +19,10 @@ public class JdaFactory {
      * 
      * @return
      *      New JDA client
-     * @throws LoginException
+     * @throws General
      *      If discord fails to auth given token
      */
-    public JDA jdaLookupClient() throws LoginException {
+    public JDA jdaLookupClient() throws GeneralSecurityException {
         return JDABuilder.createDefault(token).build();
     }
 }

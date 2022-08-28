@@ -193,34 +193,16 @@ public class GameCreatorService {
             }
             FriendlyCell.CellStatus friendlyCellStatus = FindUtil.findFriendlyCellByIndex(friendlyCellList, i).getCellStatus();
             switch (friendlyCellStatus) {
-                case EMPTY:
-                    friendlyCellGrid.append("🟦");
-                    break;
-                case SHIP:
-                    friendlyCellGrid.append("⬛");
-                    break;
-                case MISS:
-                    friendlyCellGrid.append("❕");
-                    break;
-                case SHIPHIT:
-                    friendlyCellGrid.append("❌");
-                    break;
-                default:
-                    break;
+                case EMPTY -> friendlyCellGrid.append("🟦");
+                case SHIP -> friendlyCellGrid.append("⬛");
+                case MISS -> friendlyCellGrid.append("❕");
+                case SHIP_HIT -> friendlyCellGrid.append("❌");
             }
             EnemyCell.CellStatus enemyCellStatus = FindUtil.findEnemyCellByIndex(enemyCellList, i).getCellStatus();
             switch (enemyCellStatus) {
-                case EMPTY:
-                    enemyCellGrid.append("🟦");
-                    break;
-                case HIT:
-                    enemyCellGrid.append("❌");
-                    break;
-                case MISS:
-                    enemyCellGrid.append("❕");
-                    break;
-                default:
-                    break;
+                case EMPTY -> enemyCellGrid.append("🟦");
+                case HIT -> enemyCellGrid.append("❌");
+                case MISS -> enemyCellGrid.append("❕");
             }
         }
 

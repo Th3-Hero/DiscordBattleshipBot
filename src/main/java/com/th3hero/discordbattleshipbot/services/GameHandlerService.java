@@ -43,16 +43,10 @@ public class GameHandlerService {
      * @return {@code Game} or {@code null}
      */
     public Game fetchGameByChannel(String channelId) {
-        List<Game> gamesList = gameRepository.findAll();
-        for (Game game : gamesList) {
-            List<GameBoard> boardList = game.getGameBoards();
-            for (GameBoard board : boardList) {
-                if (board.getChannelId().equals(channelId)) {
-                    return game;
-                }
-            }
-        }
-        return null;
+        return gameRepository.findAll().stream()
+            .filter(game -> game.getGameBoards().stream().anyMatch(board -> board.getChannelId().equals(channelId)))
+            .findFirst()
+            .orElse(null);
     }
 
     /**

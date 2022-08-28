@@ -1,12 +1,12 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '2.7.0'
-	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'org.springframework.boot' version "${springBootVersion}"
+	id 'io.spring.dependency-management' version "${springDependencyManagementVersion}"
 }
 
 group = 'com.th3hero'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '17'
+sourceCompatibility = 17
+version = '1.0.0'
 
 configurations {
 	compileOnly {
@@ -23,27 +23,28 @@ repositories {
 }
 
 dependencies {
+    // Spring
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter', version: "${springBootVersion}"
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: "${springBootVersion}"
     // JDA
-    implementation("net.dv8tion:JDA:4.4.0_350") {
-        exclude module: 'opus-java'
-    }
+    implementation group: 'net.dv8tion', name: 'JDA', version: "${jdaVersion}"
     // JavaX
-    implementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.2.4'
-    implementation group: 'javax.persistence', name: 'javax.persistence-api', version: '2.2'
-    implementation group: 'org.hibernate.validator', name: 'hibernate-validator', version: '7.0.1.Final'
+    implementation group: 'org.hibernate.validator', name: 'hibernate-validator', version: "${hibernateVersion}"
     // DB
-    runtimeOnly 'org.postgresql:postgresql'
-	runtimeOnly 'org.flywaydb:flyway-core'
+    runtimeOnly group: 'org.postgresql', name: 'postgresql', version: "${postgreSQLVersion}"
+	runtimeOnly group: 'org.flywaydb', name: 'flyway-core', version: "${flywayVersion}"
     // Lombok
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
-    // Spring and Other
-	implementation 'org.springframework.boot:spring-boot-starter'
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.6.2'
-    // Testing
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	compileOnly group: 'org.projectlombok', name: 'lombok', version: "${lombokVersion}"
+	annotationProcessor group: 'org.projectlombok', name: 'lombok', version: "${lombokVersion}"
+    // Test Dependencies
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: "${mockitoVersion}"
+    testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: "${mockitoVersion}"
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: "${junitVersion}"
+    testImplementation group: 'org.assertj', name: 'assertj-core', version: "${assertjVersion}"
+    testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: "${springBootVersion}"
+    testImplementation group: 'org.testcontainers', name: 'postgresql', version: "${testContainersVersion}"
 }
 
-tasks.named('test') {
+test {
 	useJUnitPlatform()
 }

@@ -101,18 +101,7 @@ public class EmbedBuilderFactory {
         List<MessageEmbed> boards = new ArrayList<>();
         boards.add(
             new EmbedBuilder()
-            .setColor(green)
             .setTitle("Battleship")
-            .addField(
-                "Your Board",
-                gridOne,
-                false
-            )
-            .build()
-        );
-
-        boards.add(
-            new EmbedBuilder()
             .setColor(red)
             .addField(
                 "Enemy Board",
@@ -121,6 +110,18 @@ public class EmbedBuilderFactory {
             )
             .build()
         );
+
+        boards.add(
+            new EmbedBuilder()
+            .setColor(green)
+            .addField(
+                "Your Board",
+                gridOne,
+                false
+            )
+            .build()
+        );
+
 
         return boards;
     }

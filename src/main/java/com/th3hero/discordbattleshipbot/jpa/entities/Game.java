@@ -3,6 +3,8 @@ package com.th3hero.discordbattleshipbot.jpa.entities;
 import java.io.Serializable;
 import java.util.List;
 
+import org.jetbrains.annotations.NotNull;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,7 +17,6 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

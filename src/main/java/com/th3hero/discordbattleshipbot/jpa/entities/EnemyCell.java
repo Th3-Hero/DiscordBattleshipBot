@@ -2,6 +2,8 @@ package com.th3hero.discordbattleshipbot.jpa.entities;
 
 import java.io.Serializable;
 
+import org.jetbrains.annotations.NotNull;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -13,7 +15,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

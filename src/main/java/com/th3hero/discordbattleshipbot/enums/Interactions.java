@@ -12,7 +12,7 @@ public class Interactions {
         HELP,
         PING,
         CHALLENGE,
-        DELGAME,
+        DELETE,
         APOCABLOOM;
 
 

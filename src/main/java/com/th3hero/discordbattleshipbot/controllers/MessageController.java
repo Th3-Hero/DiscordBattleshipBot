@@ -62,22 +62,11 @@ public class MessageController extends ListenerAdapter {
      */
     public void commandHandler(final CommandRequest request) {
         switch (request.getCommand()) {
-            case PING:
-                Ping.pingBot(request.getChannel());
-                break;
-            case HELP:
-                Help.displayHelpMessage(request.getChannel());
-                break;
-            case CHALLENGE:
-                gameCreator.gameRequest(request);
-                break;
-            case DELGAME:
-                gameHandlerService.deleteGame(request);
-                break;
-            case APOCABLOOM:
-                request.getChannel().sendMessageEmbeds(EmbedBuilderFactory.apocaBloom()).queue();
-                break;
-            default:
+            case PING -> Ping.pingBot(request.getChannel());
+            case HELP -> Help.displayHelpMessage(request.getChannel());
+            case CHALLENGE -> gameCreator.gameRequest(request);
+            case DELETE -> gameHandlerService.deleteGame(request);
+            case APOCABLOOM -> request.getChannel().sendMessageEmbeds(EmbedBuilderFactory.apocaBloom()).queue();
         }
     }
 
@@ -87,13 +76,8 @@ public class MessageController extends ListenerAdapter {
      */
     public void buttonHandler(final ButtonRequest request) {
         switch (request.getAction()) {
-            case ACCEPT:
-                gameCreator.acceptGame(request);
-                break;
-            case DECLINE:
-                gameCreator.declineGame(request);
-                break;
-            default:
+            case ACCEPT -> gameCreator.acceptGame(request);
+            case DECLINE -> gameCreator.declineGame(request);
         }
     }
 

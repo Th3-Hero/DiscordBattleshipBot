@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 @Configuration
 @EnableJpaRepositories
@@ -27,6 +28,7 @@ public class DiscordBattleshipBotSetup {
         return JDABuilder.createDefault(token, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES)
             .setMemberCachePolicy(MemberCachePolicy.ALL)
             .setChunkingFilter(ChunkingFilter.ALL)
+            .disableCache(CacheFlag.VOICE_STATE, CacheFlag.EMOTE)
             .addEventListeners(controller)
             .setActivity(Activity.playing("Battleship"))
             .build();
