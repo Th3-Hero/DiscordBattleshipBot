@@ -37,7 +37,7 @@ public class ButtonRequest {
         return request(event, action, actionId);
     }
 
-    public static ButtonRequest request(final ButtonClickEvent event, final String action, final int actionId) {
+    private static ButtonRequest request(final ButtonClickEvent event, final String action, final int actionId) {
         return ButtonRequest.builder()
             .event(event)
             .user(event.getUser())

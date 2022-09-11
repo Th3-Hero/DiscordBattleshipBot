@@ -5,13 +5,14 @@ import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.components.Button;
 
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+
+import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class GameCreatorService {
     private final PlayerHandlerService playerHandlerService;
     private final GameHandlerService gameHandlerService;
@@ -147,7 +149,7 @@ public class GameCreatorService {
             gameBoards.add(boardOne);
             game.setGameBoards(gameBoards);
             gameRepository.save(game);
-            displayCellsToUnicodeGrid(server, success, boardOne);
+            displayCellsToUnicodeGrid(server, success.getId(), boardOne);
         });
 
         // playerTwo setup
@@ -163,20 +165,17 @@ public class GameCreatorService {
             gameBoards.add(boardTwo);
             game.setGameBoards(gameBoards);
             gameRepository.save(game);
-            displayCellsToUnicodeGrid(server, success, boardTwo);
+            displayCellsToUnicodeGrid(server, success.getId(), boardTwo);
         });
 
     }
 
 
-    public void displayCellsToUnicodeGrid(Guild server, TextChannel channel, GameBoard board) {
-        List<String> rowsList = Arrays.asList("0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣");
-        List<String> columnList = Arrays.asList("🟦","🇦", "🇧", "🇨", "🇩","🇪","🇫","🇬","🇭","🇮","🇯");
+    public void displayCellsToUnicodeGrid(Guild server, String channelId, GameBoard board) {
+        List<String> columnList = Arrays.asList("🇦", "🇧", "🇨", "🇩","🇪","🇫","🇬","🇭","🇮","🇯");
+        List<String> rowsList = Arrays.asList("🟦", "0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣");
         StringBuilder columns = new StringBuilder();
-        for (String letter : columnList) {
-            columns.append("‎");
-            columns.append(letter);
-        }
+        rowsList.forEach(columns::append);
         List<FriendlyCell> friendlyCellList = board.getFriendlyCells();
         List<EnemyCell> enemyCellList = board.getEnemyCells();
         StringBuilder friendlyCellGrid = new StringBuilder();
@@ -188,18 +187,18 @@ public class GameCreatorService {
             if (i % 10 == 0) {
                 friendlyCellGrid.append("\n");
                 enemyCellGrid.append("\n");
-                friendlyCellGrid.append(rowsList.get(i/10));
-                enemyCellGrid.append(rowsList.get(i/10));
+                friendlyCellGrid.append(columnList.get(i/10));
+                enemyCellGrid.append(columnList.get(i/10));
             }
-            FriendlyCell.CellStatus friendlyCellStatus = FindUtil.findFriendlyCellByIndex(friendlyCellList, i).getCellStatus();
-            switch (friendlyCellStatus) {
+
+            switch (friendlyCellList.get(i).getCellStatus()) {
                 case EMPTY -> friendlyCellGrid.append("🟦");
                 case SHIP -> friendlyCellGrid.append("⬛");
+                case HIT -> friendlyCellGrid.append("❌");
                 case MISS -> friendlyCellGrid.append("❕");
-                case SHIP_HIT -> friendlyCellGrid.append("❌");
             }
-            EnemyCell.CellStatus enemyCellStatus = FindUtil.findEnemyCellByIndex(enemyCellList, i).getCellStatus();
-            switch (enemyCellStatus) {
+
+            switch (enemyCellList.get(i).getCellStatus()) {
                 case EMPTY -> enemyCellGrid.append("🟦");
                 case HIT -> enemyCellGrid.append("❌");
                 case MISS -> enemyCellGrid.append("❕");
@@ -207,7 +206,7 @@ public class GameCreatorService {
         }
 
         List<MessageEmbed> boardsEmbed = EmbedBuilderFactory.boardDisplay(friendlyCellGrid.toString(), enemyCellGrid.toString());
-        server.getTextChannelById(channel.getId())
+        server.getTextChannelById(channelId)
             .sendMessageEmbeds(boardsEmbed.get(0), boardsEmbed.get(1))
             .queue();
     }

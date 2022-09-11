@@ -13,7 +13,9 @@ public class Interactions {
         PING,
         CHALLENGE,
         DELETE,
-        APOCABLOOM;
+        APOCABLOOM,
+        TEST,
+        SHOOT;
 
 
         /**

@@ -12,6 +12,7 @@ import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
 import lombok.AccessLevel;
@@ -47,9 +48,11 @@ public class GameBoard implements Serializable {
     private String channelId;
 
     @OneToMany(mappedBy = "gameBoard", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("cellIndex ASC")
     private List<FriendlyCell> friendlyCells;
 
     @OneToMany(mappedBy = "gameBoard", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("cellIndex ASC")
     private List<EnemyCell> enemyCells;
 
     public static GameBoard create(Game game, Player player) {

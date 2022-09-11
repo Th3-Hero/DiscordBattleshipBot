@@ -57,7 +57,7 @@ public class FriendlyCell implements Serializable{
     public enum CellStatus {
         EMPTY,
         SHIP,
-        SHIP_HIT,
+        HIT,
         MISS
     }
 }

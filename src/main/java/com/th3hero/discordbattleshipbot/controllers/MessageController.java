@@ -6,8 +6,10 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import com.th3hero.discordbattleshipbot.services.FireService;
 import com.th3hero.discordbattleshipbot.services.GameCreatorService;
 import com.th3hero.discordbattleshipbot.services.GameHandlerService;
+import com.th3hero.discordbattleshipbot.services.ShipPlacementService;
 import com.th3hero.discordbattleshipbot.objects.ButtonRequest;
 import com.th3hero.discordbattleshipbot.objects.CommandRequest;
 import com.th3hero.discordbattleshipbot.utils.*;
@@ -21,6 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 public class MessageController extends ListenerAdapter {
     private final GameCreatorService gameCreator;
     private final GameHandlerService gameHandlerService;
+    private final ShipPlacementService shipPlacementService;
+    private final FireService fireService;
 
     @Override
     public void onMessageReceived(final MessageReceivedEvent event) {
@@ -67,6 +71,8 @@ public class MessageController extends ListenerAdapter {
             case CHALLENGE -> gameCreator.gameRequest(request);
             case DELETE -> gameHandlerService.deleteGame(request);
             case APOCABLOOM -> request.getChannel().sendMessageEmbeds(EmbedBuilderFactory.apocaBloom()).queue();
+            case TEST -> shipPlacementService.shipPlacementHandeler(request);
+            case SHOOT -> fireService.fireHandling(request);
         }
     }
 
