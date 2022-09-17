@@ -8,7 +8,6 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.components.Button;
 
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -17,8 +16,7 @@ import javax.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import com.th3hero.discordbattleshipbot.enums.ChannelPermissions;
-import com.th3hero.discordbattleshipbot.jpa.entities.EnemyCell;
-import com.th3hero.discordbattleshipbot.jpa.entities.FriendlyCell;
+
 import com.th3hero.discordbattleshipbot.jpa.entities.Game;
 import com.th3hero.discordbattleshipbot.jpa.entities.GameBoard;
 import com.th3hero.discordbattleshipbot.jpa.entities.Player;
@@ -28,7 +26,7 @@ import com.th3hero.discordbattleshipbot.objects.CommandRequest;
 import com.th3hero.discordbattleshipbot.repositories.GameRepository;
 import com.th3hero.discordbattleshipbot.utils.AuthorizedAction;
 import com.th3hero.discordbattleshipbot.utils.EmbedBuilderFactory;
-import com.th3hero.discordbattleshipbot.utils.FindUtil;
+import com.th3hero.discordbattleshipbot.utils.Utils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -39,6 +37,7 @@ public class GameCreatorService {
     private final PlayerHandlerService playerHandlerService;
     private final GameHandlerService gameHandlerService;
     private final GameRepository gameRepository;
+    private final ShipPlacementService shipPlacementService;
 
     /**
      * Creates a game(DB) and a embed(interactive) in discord
@@ -59,12 +58,7 @@ public class GameCreatorService {
         Game game = gameHandlerService.createGame(playerOneId, playerTwoId);
         String gameId = game.getGameId().toString();
 
-        // Fetch effective player names from playerId stored in game
-        Guild server = request.getServer();
-        String playerOneName = server.getMember(user1).getEffectiveName();
-        String playerTwoName = server.getMember(user2).getEffectiveName();
-
-        request.getChannel().sendMessageEmbeds(EmbedBuilderFactory.challengeRequestBuilder(playerOneName, playerTwoName, gameId)).setActionRow(
+        request.getChannel().sendMessageEmbeds(EmbedBuilderFactory.challengeRequestBuilder(Utils.playerNames(request.getServer(), game), gameId)).setActionRow(
             Button.success(gameId + "-ACCEPT", "Accept"),
             Button.danger(gameId + "-DECLINE", "Decline")
         ).queue();
@@ -78,19 +72,16 @@ public class GameCreatorService {
         Game game = gameHandlerService.fetchGame(request.getActionId());
 
         // Only player2 can accept
-        // ! DISABLE DEVMODE WHEN DONE TESTING
+        // TODO: DISABLE DEVMODE WHEN DONE TESTING
         if (!AuthorizedAction.permittedAction(request, game.getPlayerTwo(), true)) {
             return;
         }
 
         Guild server = request.getServer();
-        // Grab needed info
         String gameId = game.getGameId().toString();
-        String playerOneName = server.getMemberById(game.getPlayerOne()).getEffectiveName();
-        String playerTwoName = server.getMemberById(game.getPlayerTwo()).getEffectiveName();
 
         // Update challenge embed
-        MessageEmbed acceptedEmbed = EmbedBuilderFactory.acceptGameEmbed(playerOneName, playerTwoName, gameId);
+        MessageEmbed acceptedEmbed = EmbedBuilderFactory.acceptGameEmbed(Utils.playerNames(server, game), gameId);
             request.getMessage().editMessageEmbeds(acceptedEmbed)
                 .setActionRows() // Strip Buttons
                 .queue();
@@ -106,18 +97,16 @@ public class GameCreatorService {
         Game game = gameHandlerService.fetchGame(request.getActionId());
 
         // Only player2 can decline
-        // ! DISABLE DEVMODE WHEN DONE TESTING
+        // TODO: DISABLE DEVMODE WHEN DONE TESTING
         if (!AuthorizedAction.permittedAction(request, game.getPlayerTwo(), true)) {
             return;
         }
 
         Guild server = request.getServer();
         String gameId = game.getGameId().toString();
-        String playerOneName = server.getMemberById(game.getPlayerOne()).getEffectiveName();
-        String playerTwoName = server.getMemberById(game.getPlayerTwo()).getEffectiveName();
 
         // Update challenge embed
-        MessageEmbed declinedEmbed = EmbedBuilderFactory.declineGameEmbed(playerOneName, playerTwoName, gameId);
+        MessageEmbed declinedEmbed = EmbedBuilderFactory.declineGameEmbed(Utils.playerNames(server, game), gameId);
             request.getMessage().editMessageEmbeds(declinedEmbed)
             .setActionRows() // Strip Buttons
             .queue();
@@ -149,7 +138,12 @@ public class GameCreatorService {
             gameBoards.add(boardOne);
             game.setGameBoards(gameBoards);
             gameRepository.save(game);
-            displayCellsToUnicodeGrid(server, success.getId(), boardOne);
+            success.sendMessageEmbeds(shipPlacementService.shipPlacementCreation(server, success.getId()))
+                .setActionRow(
+                    Button.secondary(game.getGameId() + "-RANDOMIZE", "🎲 Randomize 🎲"),
+                    Button.success(game.getGameId() + "-READY", "Ready Up")
+                )
+                .queue();
         });
 
         // playerTwo setup
@@ -165,49 +159,13 @@ public class GameCreatorService {
             gameBoards.add(boardTwo);
             game.setGameBoards(gameBoards);
             gameRepository.save(game);
-            displayCellsToUnicodeGrid(server, success.getId(), boardTwo);
+            success.sendMessageEmbeds(shipPlacementService.shipPlacementCreation(server, success.getId()))
+                .setActionRow(
+                    Button.secondary(game.getGameId() + "-RANDOMIZE", "🎲 Randomize 🎲"),
+                    Button.success(game.getGameId() + "-READY", "Ready Up")
+                )
+                .queue();
         });
-
     }
 
-
-    public void displayCellsToUnicodeGrid(Guild server, String channelId, GameBoard board) {
-        List<String> columnList = Arrays.asList("🇦", "🇧", "🇨", "🇩","🇪","🇫","🇬","🇭","🇮","🇯");
-        List<String> rowsList = Arrays.asList("🟦", "0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣");
-        StringBuilder columns = new StringBuilder();
-        rowsList.forEach(columns::append);
-        List<FriendlyCell> friendlyCellList = board.getFriendlyCells();
-        List<EnemyCell> enemyCellList = board.getEnemyCells();
-        StringBuilder friendlyCellGrid = new StringBuilder();
-        StringBuilder enemyCellGrid = new StringBuilder();
-
-        friendlyCellGrid.append(columns);
-        enemyCellGrid.append(columns);
-        for (int i = 0; i < 100; i++) {
-            if (i % 10 == 0) {
-                friendlyCellGrid.append("\n");
-                enemyCellGrid.append("\n");
-                friendlyCellGrid.append(columnList.get(i/10));
-                enemyCellGrid.append(columnList.get(i/10));
-            }
-
-            switch (friendlyCellList.get(i).getCellStatus()) {
-                case EMPTY -> friendlyCellGrid.append("🟦");
-                case SHIP -> friendlyCellGrid.append("⬛");
-                case HIT -> friendlyCellGrid.append("❌");
-                case MISS -> friendlyCellGrid.append("❕");
-            }
-
-            switch (enemyCellList.get(i).getCellStatus()) {
-                case EMPTY -> enemyCellGrid.append("🟦");
-                case HIT -> enemyCellGrid.append("❌");
-                case MISS -> enemyCellGrid.append("❕");
-            }
-        }
-
-        List<MessageEmbed> boardsEmbed = EmbedBuilderFactory.boardDisplay(friendlyCellGrid.toString(), enemyCellGrid.toString());
-        server.getTextChannelById(channelId)
-            .sendMessageEmbeds(boardsEmbed.get(0), boardsEmbed.get(1))
-            .queue();
-    }
 }

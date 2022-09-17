@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 
@@ -12,16 +12,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.th3hero.discordbattleshipbot.enums.Interactions;
+import com.th3hero.discordbattleshipbot.utils.Utils;
 
 @Getter
 @Builder
 public class ButtonRequest {
     private User user;
     private Message message;
-    private MessageChannel channel;
+    private TextChannel channel;
     private Guild server;
-    private Interactions.ClickEvent action;
+    private ClickEvent action;
     private int actionId;
     private ButtonClickEvent event;
 
@@ -42,10 +42,16 @@ public class ButtonRequest {
             .event(event)
             .user(event.getUser())
             .message(event.getMessage())
-            .channel(event.getChannel())
+            .channel(event.getTextChannel())
             .server(event.getGuild())
-            .action(Interactions.ClickEvent.value(action))
+            .action(Utils.enumValue(ClickEvent.class, action))
             .actionId(actionId)
             .build();
+    }
+
+    public enum ClickEvent {
+        ACCEPT,
+        DECLINE,
+        RANDOMIZE;
     }
 }

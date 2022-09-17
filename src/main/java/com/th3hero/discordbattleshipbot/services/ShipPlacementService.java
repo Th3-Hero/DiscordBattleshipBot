@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import com.th3hero.discordbattleshipbot.jpa.entities.FriendlyCell;
 import com.th3hero.discordbattleshipbot.jpa.entities.Game;
 import com.th3hero.discordbattleshipbot.jpa.entities.GameBoard;
-import com.th3hero.discordbattleshipbot.objects.CommandRequest;
+import com.th3hero.discordbattleshipbot.objects.ButtonRequest;
 import com.th3hero.discordbattleshipbot.objects.Placement;
 import com.th3hero.discordbattleshipbot.objects.Placement.Direction;
 import com.th3hero.discordbattleshipbot.objects.Placement.Ship;
@@ -19,7 +19,7 @@ import com.th3hero.discordbattleshipbot.repositories.GameRepository;
 
 import lombok.AllArgsConstructor;
 import net.dv8tion.jda.api.entities.Guild;
-
+import net.dv8tion.jda.api.entities.MessageEmbed;
 
 @Service
 @AllArgsConstructor
@@ -27,10 +27,23 @@ import net.dv8tion.jda.api.entities.Guild;
 public class ShipPlacementService {
     private GameHandlerService gameHandlerService;
     private GameRepository gameRepository;
-    private GameCreatorService gameCreatorService;
+    private BoardDisplayService boardDisplayService;
 
-    public void shipPlacementHandeler(CommandRequest request) {
-        Guild server = request.getServer();
+    public List<MessageEmbed> shipPlacementCreation(Guild server, String channelId) {
+        Game game = gameHandlerService.fetchGameByChannel(channelId);
+        List<GameBoard> boards = game.getGameBoards();
+        GameBoard gameBoard = boards.stream().filter(board -> board.getChannelId().equals(channelId)).findFirst().orElse(null);
+        if (gameBoard == null) {
+            return null;
+        }
+
+        randomizeBoard(gameBoard);
+
+        gameRepository.save(game);
+        return boardDisplayService.displayStartingBoard(server, gameBoard);
+    }
+
+    public void shipPlacementRandomizeExisting(ButtonRequest request) {
         Game game = gameHandlerService.fetchGameByChannel(request.getChannel().getId());
         List<GameBoard> boards = game.getGameBoards();
         GameBoard gameBoard = boards.stream().filter(board -> board.getChannelId().equals(request.getChannel().getId())).findFirst().orElse(null);
@@ -38,20 +51,22 @@ public class ShipPlacementService {
             return;
         }
 
+        randomizeBoard(gameBoard);
+
+        request.getEvent().editMessageEmbeds(boardDisplayService.displayStartingBoard(request.getServer(), gameBoard)).queue();
+    }
+
+    private void randomizeBoard(GameBoard gameBoard) {
+        gameBoard.getFriendlyCells().forEach(cell -> cell.setCellStatus(FriendlyCell.CellStatus.EMPTY));
         List<Ship> ships = new ArrayList<>(Arrays.asList(Ship.values()));
 
         for (Ship ship : ships) {
             boolean placed = false;
             while (!placed) {
-                Placement placement = Placement.createRandom(ship.getShipSize());
-                placed = placeShip(gameBoard, placement);
+                placed = placeShip(gameBoard, Placement.createRandom(ship.getShipSize()));
             }
-
         }
 
-        gameRepository.save(game);
-        gameCreatorService.displayCellsToUnicodeGrid(server, request.getChannel().getId(), gameBoard);
-        
     }
 
     private boolean placeShip(GameBoard gameBoard, Placement placement) {

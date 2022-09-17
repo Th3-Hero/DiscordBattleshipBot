@@ -29,12 +29,12 @@ public class EmbedBuilderFactory {
      * @param gameId -Game ID
      * @return <pre><code>MessageEmbed</code></pre>
      */
-    public static MessageEmbed acceptGameEmbed(String playerOneName, String playerTwoName, String gameId) {
+    public static MessageEmbed acceptGameEmbed(List<String> names, String gameId) {
         return new EmbedBuilder()
         .setColor(green)
         .setTitle(embedTitle)
         .addField(
-            StringUtil.escapeSpecialCharacters(playerOneName) + " vs " + StringUtil.escapeSpecialCharacters(playerTwoName),
+            StringUtil.escapeSpecialCharacters(names.get(0)) + " vs " + StringUtil.escapeSpecialCharacters(names.get(1)),
             "PUT STATS REEEEE",
             false)
         .addField(
@@ -52,13 +52,13 @@ public class EmbedBuilderFactory {
      * @param gameId -Game ID
      * @return <pre><code>MessageEmbed</code></pre>
      */
-    public static MessageEmbed declineGameEmbed(String playerOneName, String playerTwoName, String gameId) {
+    public static MessageEmbed declineGameEmbed(List<String> names, String gameId) {
         return new EmbedBuilder()
         .setColor(red)
         .setTitle(embedTitle)
         .addField(
-            StringUtil.escapeSpecialCharacters(playerOneName) + " vs " + StringUtil.escapeSpecialCharacters(playerTwoName),
-            StringUtil.toBold(StringUtil.escapeSpecialCharacters(playerTwoName)) + " declined the match.",
+            StringUtil.escapeSpecialCharacters(names.get(0)) + " vs " + StringUtil.escapeSpecialCharacters(names.get(1)),
+            StringUtil.toBold(StringUtil.escapeSpecialCharacters(names.get(1))) + " declined the match.",
             false
         )
         .addField(
@@ -76,17 +76,17 @@ public class EmbedBuilderFactory {
      * @param gameId -Game ID
      * @return <pre><code>MessageEmbed</code></pre>
      */
-    public static MessageEmbed challengeRequestBuilder(String playerOneName, String playerTwoName, String gameId) {
+    public static MessageEmbed challengeRequestBuilder(List<String> names, String gameId) {
         return new EmbedBuilder()
         .setColor(blue)
         .setTitle(embedTitle)
         .addField(
-            StringUtil.escapeSpecialCharacters(playerOneName) + " vs " + StringUtil.escapeSpecialCharacters(playerTwoName),
+            StringUtil.escapeSpecialCharacters(names.get(0)) + " vs " + StringUtil.escapeSpecialCharacters(names.get(1)),
             "Stats",
             false)
         .addField(
             "",
-            StringUtil.toBold(StringUtil.escapeSpecialCharacters(playerTwoName)) + " do you choose to accept?",
+            StringUtil.toBold(StringUtil.escapeSpecialCharacters(names.get(1))) + " do you choose to accept?",
             false
         )
         .addField(
@@ -98,10 +98,9 @@ public class EmbedBuilderFactory {
     }
 
     public static List<MessageEmbed> boardDisplay(String gridOne, String gridTwo) {
-        List<MessageEmbed> boards = new ArrayList<>();
-        boards.add(
+        List<MessageEmbed> embeds = new ArrayList<>();
+        embeds.add(
             new EmbedBuilder()
-            .setTitle("Battleship")
             .setColor(red)
             .addField(
                 "Enemy Board",
@@ -111,7 +110,7 @@ public class EmbedBuilderFactory {
             .build()
         );
 
-        boards.add(
+        embeds.add(
             new EmbedBuilder()
             .setColor(green)
             .addField(
@@ -122,8 +121,15 @@ public class EmbedBuilderFactory {
             .build()
         );
 
+        return embeds;
+    }
 
-        return boards;
+    public static MessageEmbed boardHeader(List<String> names) {
+        return new EmbedBuilder()
+        .setTitle(names.get(0) + " vs " + names.get(1))
+        .setDescription("description")
+        .setColor(blue)
+        .build();
     }
 
     public static MessageEmbed apocaBloom(){

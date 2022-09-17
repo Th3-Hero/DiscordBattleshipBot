@@ -6,9 +6,7 @@ import com.th3hero.discordbattleshipbot.objects.CommandRequest;
 
 import lombok.AllArgsConstructor;
 
-/**
- * FireService
- */
+
 @Service
 @AllArgsConstructor
 public class FireService {

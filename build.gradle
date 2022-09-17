@@ -36,6 +36,8 @@ dependencies {
     // Lombok
 	compileOnly group: 'org.projectlombok', name: 'lombok', version: "${lombokVersion}"
 	annotationProcessor group: 'org.projectlombok', name: 'lombok', version: "${lombokVersion}"
+    // Other
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: "${apacheCommonVersion}"
     // Test Dependencies
     testImplementation group: 'org.mockito', name: 'mockito-core', version: "${mockitoVersion}"
     testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: "${mockitoVersion}"

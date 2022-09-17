@@ -29,8 +29,11 @@ public class StringUtil {
      */
     public static String escapeSpecialCharacters(String string) {
         return string
-            .replace("_", "\\_")
-            .replace("*", "\\*")
-            .replace("~", "\\~");
+            .replace("_", "\\_") // Italics or Underline
+            .replace("*", "\\*") // Bold or Bold Italics
+            .replace("~", "\\~") // Strikethrough
+            .replace("|", "\\|") // Spoiler
+            .replace(">", "\\>") // Quote
+            .replace("`", "\\`"); // Code Block
     }
 }

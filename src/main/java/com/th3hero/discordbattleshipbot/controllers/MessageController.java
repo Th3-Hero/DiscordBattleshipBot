@@ -71,7 +71,6 @@ public class MessageController extends ListenerAdapter {
             case CHALLENGE -> gameCreator.gameRequest(request);
             case DELETE -> gameHandlerService.deleteGame(request);
             case APOCABLOOM -> request.getChannel().sendMessageEmbeds(EmbedBuilderFactory.apocaBloom()).queue();
-            case TEST -> shipPlacementService.shipPlacementHandeler(request);
             case SHOOT -> fireService.fireHandling(request);
         }
     }
@@ -84,6 +83,7 @@ public class MessageController extends ListenerAdapter {
         switch (request.getAction()) {
             case ACCEPT -> gameCreator.acceptGame(request);
             case DECLINE -> gameCreator.declineGame(request);
+            case RANDOMIZE -> shipPlacementService.shipPlacementRandomizeExisting(request);
         }
     }
 
