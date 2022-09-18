@@ -46,7 +46,8 @@ public class ShipPlacementService {
     public void shipPlacementRandomizeExisting(ButtonRequest request) {
         Game game = gameHandlerService.fetchGameByChannel(request.getChannel().getId());
         List<GameBoard> boards = game.getGameBoards();
-        GameBoard gameBoard = boards.stream().filter(board -> board.getChannelId().equals(request.getChannel().getId())).findFirst().orElse(null);
+        GameBoard gameBoard = boards.stream().filter(board -> board.getChannelId().equals(request.getChannel().getId()))
+            .findFirst().orElse(null);
         if (gameBoard == null) {
             return;
         }
@@ -75,12 +76,9 @@ public class ShipPlacementService {
         Direction shipDirection = placement.getDirection();
         int shipFrontIndex = placement.getCellIndex();
 
-        if (placement.getDirection().equals(Placement.Direction.HORIZONTAL)) {
-            double shipFront = shipFrontIndex + 1.0;
-            double shipEnd = (shipFrontIndex + shipSize) + 1.0;
-            if (!sameRow(shipFront, shipEnd)) {
-                return false;
-            }
+        if (placement.getDirection().equals(Placement.Direction.HORIZONTAL)
+            && !sameRow(shipFrontIndex, (shipFrontIndex + shipSize) + 1.00)) {
+            return false;
         }
 
 
@@ -97,7 +95,7 @@ public class ShipPlacementService {
                 // if front cell of ship
                 if (i == 0
                     // check if the cell in front of ship is in bounds(false if cellIndex is 0, cellIndex -1 doesn't exist)
-                    && cellIndex - 1 >= 0
+                    && cellIndex - 1 > 0
                     // Prevent check if it will wrap to next row
                     && sameRow(cellIndex, cellIndex - 1.0)
                     // check if that cell in front of ship is another ship
@@ -107,7 +105,7 @@ public class ShipPlacementService {
                 // if back cell of ship
                 if (i == (shipSize - 1)
                     // check if cell behind ship is in bounds(will trigger if cellIndex is 99, cellIndex 100 doesn't exist)
-                    && (cellIndex + 1) <= 99
+                    && (cellIndex + 1) < 99
                     // Prevent check if it will wrap to next row
                     && sameRow(cellIndex, cellIndex + 1.0)
                     // check if cell behind ship is another ship
@@ -116,11 +114,11 @@ public class ShipPlacementService {
                 }
 
                 // Below cell is inbounds and blocked by another ship
-                if ((cellIndex + 10 <= 99) && cellList.get(cellIndex + 10).getCellStatus().equals(FriendlyCell.CellStatus.SHIP)) {
+                if ((cellIndex + 10 < 99) && cellList.get(cellIndex + 10).getCellStatus().equals(FriendlyCell.CellStatus.SHIP)) {
                     return false;
                 }
                 // Above cell is inbounds and blocked by another ship
-                if ((cellIndex - 10 >= 0) && cellList.get(cellIndex - 10).getCellStatus().equals(FriendlyCell.CellStatus.SHIP)) {
+                if ((cellIndex - 10 > 0) && cellList.get(cellIndex - 10).getCellStatus().equals(FriendlyCell.CellStatus.SHIP)) {
                     return false;
                 }
             }
@@ -129,7 +127,7 @@ public class ShipPlacementService {
                 // if front cell of ship
                 if (i == 0
                     // check if the cell in front of ship is in bounds
-                    && (cellIndex - 10) >= 0
+                    && (cellIndex - 10) > 0
                     // check if that cell in front of ship is another ship
                     && cellList.get(cellIndex - 10).getCellStatus().equals(FriendlyCell.CellStatus.SHIP)) {
                     return false;
@@ -137,21 +135,21 @@ public class ShipPlacementService {
                 // if back cell of ship
                 if (i == (shipSize - 1)
                     // check if cell behind ship is in bounds
-                    && (cellIndex + 10) <= 99
+                    && (cellIndex + 10) < 99
                     // check if cell behind ship is another ship
                     && cellList.get(cellIndex + 10).getCellStatus().equals(FriendlyCell.CellStatus.SHIP)) {
                     return false;
                 }
 
                 // Left Side blocked
-                if ((cellIndex - 1) >= 0 
+                if ((cellIndex - 1) > 0 
                     // Prevent check if it will wrap to next row
                     && sameRow(cellIndex, cellIndex - 1.0)
                     && cellList.get(cellIndex - 1).getCellStatus().equals(FriendlyCell.CellStatus.SHIP)) {
                     return false;
                 }
                 // Right Side blocked
-                if ((cellIndex + 1) <= 99 
+                if ((cellIndex + 1) < 99 
                     // Prevent check if it will wrap to next row
                     && sameRow(cellIndex, cellIndex + 1.0)
                     && cellList.get(cellIndex + 1).getCellStatus().equals(FriendlyCell.CellStatus.SHIP)) {
@@ -178,8 +176,18 @@ public class ShipPlacementService {
      * @return <pre><code>boolean</code></pre>
      */
     private boolean sameRow(double indexOne, double indexTwo) {
-        double firstRow = Math.ceil(indexOne / 10.0);
-        double secondRow = Math.ceil(indexTwo / 10.0);
+        double firstRow;
+        if (indexOne == 0 || indexOne % 10 == 0) {
+            firstRow = Math.ceil((indexOne + 1) / 10.0);
+        } else {
+            firstRow = Math.ceil(indexOne / 10.0);
+        }
+        double secondRow;
+        if (indexTwo % 10 == 0) {
+            secondRow = Math.ceil((indexTwo + 1) / 10.0);
+        } else {
+            secondRow = Math.ceil(indexTwo / 10.0);
+        }
         return firstRow == secondRow;
     }
 }
