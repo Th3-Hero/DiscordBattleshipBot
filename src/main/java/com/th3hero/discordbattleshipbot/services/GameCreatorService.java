@@ -69,7 +69,7 @@ public class GameCreatorService {
      * @param request
      */
     public void acceptGame(ButtonRequest request) {
-        Game game = gameHandlerService.fetchGame(request.getActionId());
+        Game game = gameHandlerService.fetchGameById(request.getActionId());
 
         // Only player2 can accept
         // TODO: DISABLE DEVMODE WHEN DONE TESTING
@@ -94,7 +94,7 @@ public class GameCreatorService {
      * @param request
      */
     public void declineGame(ButtonRequest request) {
-        Game game = gameHandlerService.fetchGame(request.getActionId());
+        Game game = gameHandlerService.fetchGameById(request.getActionId());
 
         // Only player2 can decline
         // TODO: DISABLE DEVMODE WHEN DONE TESTING
@@ -117,6 +117,7 @@ public class GameCreatorService {
 
     public void startGame(Game game, Guild server, GuildChannel channel) {
         game.setGameStatus(GameStatus.ACTIVE); // Update game status
+        game.setCurrentTurn(Utils.randomEnum(Game.Turn.class));
         Player playerOne = playerHandlerService.fetchPlayer(game.getPlayerOne());
         Player playerTwo = playerHandlerService.fetchPlayer(game.getPlayerTwo());
 

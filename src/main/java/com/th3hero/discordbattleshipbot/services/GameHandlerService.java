@@ -28,7 +28,7 @@ public class GameHandlerService {
      * @return {@code Game} or {@code null}
      * @see <pre><code>GameHandlerService.createGame</code></pre>
      */
-    public Game fetchGame(int gameId){
+    public Game fetchGameById(int gameId){
         if (gameRepository.existsById(gameId)) {
             return gameRepository.findById(gameId).get();
         }

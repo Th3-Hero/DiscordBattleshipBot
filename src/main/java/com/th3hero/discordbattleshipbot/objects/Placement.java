@@ -1,43 +1,36 @@
 package com.th3hero.discordbattleshipbot.objects;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+
+import com.th3hero.discordbattleshipbot.utils.Utils;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-/**
- * TODO: Document
- */
 @Getter
 @Builder
 public class Placement {
     private Integer cellIndex;
-    private int shipSize;
     private Direction direction;
+    private Ship shipType;
+    private int shipSize;
 
-    public static Placement create(Integer cellIndex, int shipSize, Direction direction) {
-        return location(cellIndex, shipSize, direction);
+    public static Placement create(Integer cellIndex, Ship ship, Direction direction) {
+        return location(cellIndex, ship, direction);
     }
 
-    public static Placement createRandom(int shipSize) {
-        Random random = new SecureRandom();
-        Integer cellIndex = random.nextInt(0, 99 + 1);
-        List<Direction> directionValues = new ArrayList<>(Arrays.asList(Direction.values()));
-        Direction direction = directionValues.get(random.nextInt(directionValues.size()));
-
-        return location(cellIndex, shipSize, direction);
+    public static Placement createRandom(Ship ship) {
+        Integer cellIndex = new SecureRandom().nextInt(0, 99 + 1);
+        return location(cellIndex, ship, Utils.randomEnum(Direction.class));
     }
 
-    public static Placement location(Integer index, int shipSize, Direction direction) {
+    public static Placement location(Integer index, Ship ship, Direction direction) {
         return Placement.builder()
             .cellIndex(index)
-            .shipSize(shipSize)
             .direction(direction)
+            .shipType(ship)
+            .shipSize(ship.getShipSize())
             .build();
     }
 

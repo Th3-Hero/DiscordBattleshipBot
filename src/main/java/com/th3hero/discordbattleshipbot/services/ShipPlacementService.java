@@ -59,12 +59,12 @@ public class ShipPlacementService {
 
     private void randomizeBoard(GameBoard gameBoard) {
         gameBoard.getFriendlyCells().forEach(cell -> cell.setCellStatus(FriendlyCell.CellStatus.EMPTY));
-        List<Ship> ships = new ArrayList<>(Arrays.asList(Ship.values()));
+        List<Ship> ships = Arrays.asList(Ship.values());
 
         for (Ship ship : ships) {
             boolean placed = false;
             while (!placed) {
-                placed = placeShip(gameBoard, Placement.createRandom(ship.getShipSize()));
+                placed = placeShip(gameBoard, Placement.createRandom(ship));
             }
         }
 
@@ -164,7 +164,10 @@ public class ShipPlacementService {
             validPlacement.add(cell);
         }
         // Only actually place the ship if all checks pass
-        validPlacement.forEach(cell -> cell.setCellStatus(FriendlyCell.CellStatus.SHIP));
+        validPlacement.forEach(cell -> {
+            cell.setCellStatus(FriendlyCell.CellStatus.SHIP);
+            cell.setShipType(placement.getShipType());
+        });
         return true;
 
     }
@@ -176,18 +179,8 @@ public class ShipPlacementService {
      * @return <pre><code>boolean</code></pre>
      */
     private boolean sameRow(double indexOne, double indexTwo) {
-        double firstRow;
-        if (indexOne == 0 || indexOne % 10 == 0) {
-            firstRow = Math.ceil((indexOne + 1) / 10.0);
-        } else {
-            firstRow = Math.ceil(indexOne / 10.0);
-        }
-        double secondRow;
-        if (indexTwo % 10 == 0) {
-            secondRow = Math.ceil((indexTwo + 1) / 10.0);
-        } else {
-            secondRow = Math.ceil(indexTwo / 10.0);
-        }
+        double firstRow = Math.ceil((indexOne + 1) / 10.0);
+        double secondRow = Math.ceil((indexTwo + 1) / 10.0);
         return firstRow == secondRow;
     }
 }

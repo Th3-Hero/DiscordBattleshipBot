@@ -66,6 +66,10 @@ public class Game implements Serializable {
     @Column
     private GameStatus gameStatus = GameStatus.CHALLENGE;
 
+    @Enumerated(EnumType.STRING)
+    @Column
+    private Turn currentTurn;
+
     public static Game create(
         final String playerOne,
         final String playerTwo
@@ -80,5 +84,10 @@ public class Game implements Serializable {
         CHALLENGE,
         ACTIVE,
         ENDED
+    }
+
+    public enum Turn {
+        PLAYER_ONE,
+        PLAYER_TWO;
     }
 }

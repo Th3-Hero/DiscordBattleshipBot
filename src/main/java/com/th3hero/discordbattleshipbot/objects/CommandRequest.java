@@ -20,6 +20,7 @@ public class CommandRequest {
     private User requester;
     private List<User> mentionedUsers;
     private MessageChannel channel;
+    private Message message;
     private Guild server;
     private Command command;
     private boolean validToken;
@@ -45,6 +46,7 @@ public class CommandRequest {
             .mentionedUsers(message.getMentionedUsers())
             .server(message.getGuild())
             .channel(message.getChannel())
+            .message(message)
             .command(Utils.enumValue(Command.class, command))
             .validToken(token.equals("$"))
             .arguments(arguments)
@@ -57,6 +59,6 @@ public class CommandRequest {
         CHALLENGE,
         DELETE,
         APOCABLOOM,
-        SHOOT;
+        FIRE;
     }
 }

@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 import org.jetbrains.annotations.NotNull;
 
+import com.th3hero.discordbattleshipbot.objects.Placement.Ship;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -53,6 +55,10 @@ public class EnemyCell implements Serializable{
     @Builder.Default
     @Column
     private CellStatus cellStatus = CellStatus.EMPTY;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private Ship shipType;
 
     public enum CellStatus {
         EMPTY,

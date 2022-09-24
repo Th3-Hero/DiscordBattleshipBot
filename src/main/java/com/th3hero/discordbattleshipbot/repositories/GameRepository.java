@@ -8,5 +8,4 @@ import com.th3hero.discordbattleshipbot.jpa.entities.Game;
 @Repository
 public interface GameRepository extends JpaRepository<Game, Integer> {
 
-    
 }

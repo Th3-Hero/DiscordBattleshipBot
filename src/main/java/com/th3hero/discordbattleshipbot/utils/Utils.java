@@ -8,7 +8,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import net.dv8tion.jda.api.entities.Guild;
 
-import java.util.ArrayList;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,11 +23,11 @@ public class Utils {
      * @param game
      * @return List of effective player names (names may be null)
      */
-    public static List<String> playerNames(Guild server, Game game) {
-        return new ArrayList<>(Arrays.asList(
+    public static List<String> playerNames(final Guild server, final Game game) {
+        return Arrays.asList(
             server.getMemberById(game.getPlayerOne()).getEffectiveName(),
             server.getMemberById(game.getPlayerTwo()).getEffectiveName()
-        ));
+        );
     }
 
     /**
@@ -52,4 +52,8 @@ public class Utils {
         }
     }
 
+    public static <T extends Enum<T>> T randomEnum(final Class<T> enumClass) {
+        final T[] values = enumClass.getEnumConstants();
+        return values[new SecureRandom().nextInt(values.length)];
+    }
 }

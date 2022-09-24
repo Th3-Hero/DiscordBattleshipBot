@@ -37,11 +37,7 @@ public class EmbedBuilderFactory {
             StringUtil.escapeSpecialCharacters(names.get(0)) + " vs " + StringUtil.escapeSpecialCharacters(names.get(1)),
             "PUT STATS REEEEE",
             false)
-        .addField(
-            "",
-            gameEmbed + StringUtil.toBold(gameId),
-            false
-        )
+        .setFooter(gameEmbed + gameId)
         .build();
     }
 
@@ -61,11 +57,7 @@ public class EmbedBuilderFactory {
             StringUtil.toBold(StringUtil.escapeSpecialCharacters(names.get(1))) + " declined the match.",
             false
         )
-        .addField(
-            "",
-            gameEmbed + StringUtil.toBold(gameId),
-            false
-        )
+        .setFooter(gameEmbed + gameId)
         .build();
     }
 
@@ -89,11 +81,7 @@ public class EmbedBuilderFactory {
             StringUtil.toBold(StringUtil.escapeSpecialCharacters(names.get(1))) + " do you choose to accept?",
             false
         )
-        .addField(
-            "",
-            gameEmbed + StringUtil.toBold(gameId),
-            false
-        )
+        .setFooter(gameEmbed + gameId)
         .build();
     }
 

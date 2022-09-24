@@ -71,7 +71,7 @@ public class MessageController extends ListenerAdapter {
             case CHALLENGE -> gameCreator.gameRequest(request);
             case DELETE -> gameHandlerService.deleteGame(request);
             case APOCABLOOM -> request.getChannel().sendMessageEmbeds(EmbedBuilderFactory.apocaBloom()).queue();
-            case SHOOT -> fireService.fireHandling(request);
+            case FIRE -> fireService.fireHandling(request);
         }
     }
 
