@@ -49,9 +49,7 @@ public class Placement {
     @Getter
     @RequiredArgsConstructor
     public enum Direction {
-        // LEFT(-1),
         HORIZONTAL(1),
-        // UP(-10),
         VERTICAL(10);
 
         private final int value;

@@ -1,5 +1,7 @@
 package com.th3hero.discordbattleshipbot.controllers;
 
+import javax.annotation.Nonnull;
+
 import org.springframework.stereotype.Controller;
 
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
@@ -9,6 +11,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import com.th3hero.discordbattleshipbot.services.FireService;
 import com.th3hero.discordbattleshipbot.services.GameCreatorService;
 import com.th3hero.discordbattleshipbot.services.GameHandlerService;
+import com.th3hero.discordbattleshipbot.services.GameStateHandlerService;
 import com.th3hero.discordbattleshipbot.services.ShipPlacementService;
 import com.th3hero.discordbattleshipbot.objects.ButtonRequest;
 import com.th3hero.discordbattleshipbot.objects.CommandRequest;
@@ -25,9 +28,10 @@ public class MessageController extends ListenerAdapter {
     private final GameHandlerService gameHandlerService;
     private final ShipPlacementService shipPlacementService;
     private final FireService fireService;
+    private final GameStateHandlerService gameStateHandlerService;
 
     @Override
-    public void onMessageReceived(final MessageReceivedEvent event) {
+    public void onMessageReceived(@Nonnull final MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) { // Ignore any message sent by a bot
             return;
         }
@@ -41,12 +45,12 @@ public class MessageController extends ListenerAdapter {
 
         } catch (Exception e) {
             log.error("onMessageReceived", e);
-            event.getChannel().sendMessage("The command is invalid or an error has occurred").queue();
+            event.getChannel().sendMessage("If you're seeing this Hero is bad at coding. Which we already knew!").queue();
         }
     }
 
     @Override
-    public void onButtonClick(final ButtonClickEvent event) {
+    public void onButtonClick(@Nonnull final ButtonClickEvent event) {
         try {
             final ButtonRequest request = ButtonRequest.create(event);
             if (request.getAction() == null) {
@@ -70,7 +74,6 @@ public class MessageController extends ListenerAdapter {
             case HELP -> Help.displayHelpMessage(request.getChannel());
             case CHALLENGE -> gameCreator.gameRequest(request);
             case DELETE -> gameHandlerService.deleteGame(request);
-            case APOCABLOOM -> request.getChannel().sendMessageEmbeds(EmbedBuilderFactory.apocaBloom()).queue();
             case FIRE -> fireService.fireHandling(request);
         }
     }
@@ -84,6 +87,9 @@ public class MessageController extends ListenerAdapter {
             case ACCEPT -> gameCreator.acceptGame(request);
             case DECLINE -> gameCreator.declineGame(request);
             case RANDOMIZE -> shipPlacementService.shipPlacementRandomizeExisting(request);
+            case READY -> gameStateHandlerService.readyStateHandler(request);
+            case UN_READY -> gameStateHandlerService.readyStateHandler(request);
+            case CLOSE_GAME -> gameStateHandlerService.closeGame(request);
         }
     }
 

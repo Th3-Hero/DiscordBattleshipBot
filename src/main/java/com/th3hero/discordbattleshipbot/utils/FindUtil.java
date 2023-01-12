@@ -3,8 +3,12 @@ package com.th3hero.discordbattleshipbot.utils;
 import java.util.Collection;
 import java.util.function.Predicate;
 
+import javax.persistence.EntityNotFoundException;
+
 import com.th3hero.discordbattleshipbot.jpa.entities.EnemyCell;
 import com.th3hero.discordbattleshipbot.jpa.entities.FriendlyCell;
+import com.th3hero.discordbattleshipbot.jpa.entities.Game;
+import com.th3hero.discordbattleshipbot.jpa.entities.GameBoard;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -36,5 +40,12 @@ public class FindUtil {
      */
     public static EnemyCell findEnemyCellByIndex(Collection<EnemyCell> cellList, Integer index) {
         return findByField(cellList, enemyCell -> index.equals(enemyCell.getCellIndex()));
+    }
+
+    public static GameBoard findGameboardByPlayerId(Game game, String playerId) {
+        return game.getGameBoards().stream()
+            .filter(board -> board.getPlayer().getPlayerId().equals(playerId))
+            .findFirst()
+            .orElseThrow(() -> new EntityNotFoundException("Gameboard could not be found"));
     }
 }

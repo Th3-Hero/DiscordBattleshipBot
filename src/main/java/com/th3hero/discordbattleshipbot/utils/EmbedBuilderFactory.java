@@ -7,6 +7,8 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.th3hero.discordbattleshipbot.objects.Placement.Ship;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
@@ -120,16 +122,39 @@ public class EmbedBuilderFactory {
         .build();
     }
 
-    public static MessageEmbed apocaBloom(){
+    public static MessageEmbed shipSunkEmbed(String playerWhoSunkName, String playerWhoGotSunkName, Ship ship, String position) {
         return new EmbedBuilder()
         .setColor(blue)
-        .setTitle("Apoca Bloom", "https://deeprockgalactic.fandom.com/wiki/Apoca_Bloom")
-        .setImage("https://static.wikia.nocookie.net/deeprockgalactic_gamepedia_en/images/a/a0/Apoca_bloom_icon.png/revision/latest/scale-to-width-down/250?cb=20180519134446")
+        .setTitle(ship + " Sunk!")
+        .setDescription(playerWhoSunkName + " sunk " + playerWhoGotSunkName + "'s " + ship.name().toLowerCase() + " at " + position)
+        .build();
+    }
+
+    // TODO: Add stats about the match
+    public static MessageEmbed gameOver(String winner) {
+        return new EmbedBuilder()
+        .setColor(blue)
+        .setTitle("Game Over")
         .addField(
-            "", 
-            "Apoca Bloom are a secondary mission objective. They can appear in any gamemode. To be gathered, dwarves must be close enough to pick them up with the [USE] key ('E' by default). 15 must be collected to complete the secondary objective.", 
+            winner + " is the winner!!!",
+            "Some Text",
             false
         )
+        .build();
+    }
+
+    public static MessageEmbed gameStart(boolean isTurn) {
+        String description;
+        if (isTurn) {
+            description = "It is your turn";
+        }
+        else {
+            description = "It is the opponents turn";
+        }
+        return new EmbedBuilder()
+        .setColor(blue)
+        .setTitle("Game has started!")
+        .setDescription(description)
         .build();
     }
 }

@@ -1,6 +1,5 @@
 package com.th3hero.discordbattleshipbot.jpa.entities;
 
-
 import java.io.Serializable;
 
 import org.jetbrains.annotations.NotNull;

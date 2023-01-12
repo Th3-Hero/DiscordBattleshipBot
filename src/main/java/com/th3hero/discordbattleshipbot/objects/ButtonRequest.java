@@ -52,6 +52,9 @@ public class ButtonRequest {
     public enum ClickEvent {
         ACCEPT,
         DECLINE,
-        RANDOMIZE;
+        RANDOMIZE,
+        READY,
+        UN_READY,
+        CLOSE_GAME;
     }
 }

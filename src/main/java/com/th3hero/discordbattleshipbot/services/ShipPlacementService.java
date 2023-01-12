@@ -23,28 +23,25 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 
 @Service
 @AllArgsConstructor
-@Transactional
 public class ShipPlacementService {
     private GameHandlerService gameHandlerService;
     private GameRepository gameRepository;
     private BoardDisplayService boardDisplayService;
 
-    public List<MessageEmbed> shipPlacementCreation(Guild server, String channelId) {
-        Game game = gameHandlerService.fetchGameByChannel(channelId);
-        List<GameBoard> boards = game.getGameBoards();
-        GameBoard gameBoard = boards.stream().filter(board -> board.getChannelId().equals(channelId)).findFirst().orElse(null);
+    @Transactional
+    public List<MessageEmbed> shipPlacementCreation(Guild server, Game game, GameBoard gameBoard) {
+
         if (gameBoard == null) {
             return null;
         }
 
         randomizeBoard(gameBoard);
-
-        gameRepository.save(game);
         return boardDisplayService.displayStartingBoard(server, gameBoard);
     }
 
+    @Transactional
     public void shipPlacementRandomizeExisting(ButtonRequest request) {
-        Game game = gameHandlerService.fetchGameByChannel(request.getChannel().getId());
+        Game game = gameHandlerService.fetchGameByChannelId(request.getChannel().getId());
         List<GameBoard> boards = game.getGameBoards();
         GameBoard gameBoard = boards.stream().filter(board -> board.getChannelId().equals(request.getChannel().getId()))
             .findFirst().orElse(null);
@@ -53,12 +50,12 @@ public class ShipPlacementService {
         }
 
         randomizeBoard(gameBoard);
-
         request.getEvent().editMessageEmbeds(boardDisplayService.displayStartingBoard(request.getServer(), gameBoard)).queue();
     }
 
     private void randomizeBoard(GameBoard gameBoard) {
         gameBoard.getFriendlyCells().forEach(cell -> cell.setCellStatus(FriendlyCell.CellStatus.EMPTY));
+        gameBoard.getFriendlyCells().forEach(cell -> cell.setShipType(null));
         List<Ship> ships = Arrays.asList(Ship.values());
 
         for (Ship ship : ships) {
@@ -67,9 +64,9 @@ public class ShipPlacementService {
                 placed = placeShip(gameBoard, Placement.createRandom(ship));
             }
         }
-
     }
 
+    // TODO: Fix this cancer
     private boolean placeShip(GameBoard gameBoard, Placement placement) {
         List<FriendlyCell> cellList = gameBoard.getFriendlyCells();
         int shipSize = placement.getShipSize();
@@ -167,6 +164,7 @@ public class ShipPlacementService {
         validPlacement.forEach(cell -> {
             cell.setCellStatus(FriendlyCell.CellStatus.SHIP);
             cell.setShipType(placement.getShipType());
+            cell.setSunk(false);
         });
         return true;
 

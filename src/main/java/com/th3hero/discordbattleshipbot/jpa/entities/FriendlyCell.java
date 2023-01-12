@@ -60,6 +60,9 @@ public class FriendlyCell implements Serializable{
     @Column
     private Ship shipType;
 
+    @Column
+    private Boolean sunk;
+
     public enum CellStatus {
         EMPTY,
         SHIP,

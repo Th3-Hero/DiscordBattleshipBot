@@ -13,13 +13,14 @@ CREATE TABLE game (
     game_id INTEGER NOT NULL PRIMARY KEY,
     player_one VARCHAR(20) NOT NULL,
     player_two VARCHAR(20) NOT NULL,
-    game_status VARCHAR(10) NOT NULL,
-    current_turn VARCHAR(12)
+    game_status VARCHAR(14) NOT NULL,
+    current_turn VARCHAR(20)
 );
 
 CREATE TABLE game_board (
     game_id INTEGER NOT NULL,
     player_id VARCHAR(20) NOT NULL,
+    player_ready BOOLEAN,
     channel_id VARCHAR(20),
     CONSTRAINT game_board_fk FOREIGN KEY (game_id)
         REFERENCES game (game_id),
@@ -32,6 +33,7 @@ CREATE TABLE friendly_cell (
     cell_index INTEGER NOT NULL,
     cell_status VARCHAR(10),
     ship_type VARCHAR(12),
+    sunk BOOLEAN,
 
     CONSTRAINT friendly_cell_fk FOREIGN KEY (game_id, player_id)
         REFERENCES game_board (game_id, player_id),

@@ -2,6 +2,7 @@ package com.th3hero.discordbattleshipbot.jpa.entities;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.ArrayList;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -49,26 +50,18 @@ public class Game implements Serializable {
     @Column
     private String playerTwo;
 
+    @Builder.Default
     @OneToMany(mappedBy = "game", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<GameBoard> gameBoards;
+    private List<GameBoard> gameBoards = new ArrayList<>();
 
-    /**
-     * Current status of game
-     * <ul>
-     *  <li>CHALLENGE - Awaiting challenged user to accept game</li>
-     *  <li>ACTIVE - Game has been started</li>
-     *  <li>ENDED - Game is over</li>
-     * </ul>
-     */
     @NotNull
     @Enumerated(EnumType.STRING)
     @Builder.Default
     @Column
     private GameStatus gameStatus = GameStatus.CHALLENGE;
 
-    @Enumerated(EnumType.STRING)
     @Column
-    private Turn currentTurn;
+    private String currentTurn;
 
     public static Game create(
         final String playerOne,
@@ -82,12 +75,8 @@ public class Game implements Serializable {
 
     public enum GameStatus {
         CHALLENGE,
+        WAITING_START,
         ACTIVE,
         ENDED
-    }
-
-    public enum Turn {
-        PLAYER_ONE,
-        PLAYER_TWO;
     }
 }

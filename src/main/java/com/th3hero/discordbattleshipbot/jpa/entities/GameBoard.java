@@ -45,6 +45,10 @@ public class GameBoard implements Serializable {
     private Player player;
 
     @Column
+    @Builder.Default
+    private Boolean playerReady = false;
+
+    @Column
     private String channelId;
 
     @OneToMany(mappedBy = "gameBoard", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

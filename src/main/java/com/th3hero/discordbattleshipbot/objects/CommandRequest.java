@@ -58,7 +58,6 @@ public class CommandRequest {
         PING,
         CHALLENGE,
         DELETE,
-        APOCABLOOM,
         FIRE;
     }
 }

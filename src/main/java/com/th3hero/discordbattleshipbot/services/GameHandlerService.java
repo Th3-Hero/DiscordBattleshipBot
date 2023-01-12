@@ -42,7 +42,7 @@ public class GameHandlerService {
      * @param channelId
      * @return {@code Game} or {@code null}
      */
-    public Game fetchGameByChannel(String channelId) {
+    public Game fetchGameByChannelId(String channelId) {
         return gameRepository.findAll().stream()
             .filter(game -> game.getGameBoards().stream().anyMatch(board -> board.getChannelId().equals(channelId)))
             .findFirst()
@@ -97,7 +97,21 @@ public class GameHandlerService {
      */
     public void deleteGame(CommandRequest request){
         Guild server = request.getServer();
-        Game game = fetchGameByChannel(request.getChannel().getId());
+        Game game = fetchGameByChannelId(request.getChannel().getId());
+
+        if (game == null) {
+            return;
+        }
+        List<GameBoard> boards = game.getGameBoards();
+
+        for (GameBoard gameBoard : boards) {
+            server.getTextChannelById(gameBoard.getChannelId()).delete().queue();
+        }
+        gameRepository.delete(game);
+    }
+
+    public void deleteGame(String channelId, Guild server){
+        Game game = fetchGameByChannelId(channelId);
 
         if (game == null) {
             return;

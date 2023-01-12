@@ -19,8 +19,8 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 @RequiredArgsConstructor
 public class BoardDisplayService {
 
-    public void displayBoard() {
-        // * For future use
+    public List<MessageEmbed> displayBoard(GameBoard board) {
+        return cellsToUnicodeGrid(board);
     }
 
     public List<MessageEmbed> displayStartingBoard(Guild server, GameBoard board) {

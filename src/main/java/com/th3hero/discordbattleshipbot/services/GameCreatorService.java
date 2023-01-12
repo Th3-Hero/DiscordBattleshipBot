@@ -13,6 +13,7 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.th3hero.discordbattleshipbot.enums.ChannelPermissions;
@@ -31,13 +32,14 @@ import com.th3hero.discordbattleshipbot.utils.Utils;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
+@RequiredArgsConstructor
 public class GameCreatorService {
     private final PlayerHandlerService playerHandlerService;
     private final GameHandlerService gameHandlerService;
     private final GameRepository gameRepository;
     private final ShipPlacementService shipPlacementService;
+    private final AuthorizedAction authorizedAction;
 
     /**
      * Creates a game(DB) and a embed(interactive) in discord
@@ -72,8 +74,7 @@ public class GameCreatorService {
         Game game = gameHandlerService.fetchGameById(request.getActionId());
 
         // Only player2 can accept
-        // TODO: DISABLE DEVMODE WHEN DONE TESTING
-        if (!AuthorizedAction.permittedAction(request, game.getPlayerTwo(), true)) {
+        if (!authorizedAction.permittedAction(request, game.getPlayerTwo())) {
             return;
         }
 
@@ -82,9 +83,9 @@ public class GameCreatorService {
 
         // Update challenge embed
         MessageEmbed acceptedEmbed = EmbedBuilderFactory.acceptGameEmbed(Utils.playerNames(server, game), gameId);
-            request.getMessage().editMessageEmbeds(acceptedEmbed)
-                .setActionRows() // Strip Buttons
-                .queue();
+        request.getEvent().editMessageEmbeds(acceptedEmbed)
+            .setActionRows() // Strip Buttons
+            .queue();
 
         startGame(game, server, server.getGuildChannelById(ChannelType.TEXT, request.getChannel().getId()));
     }
@@ -97,8 +98,7 @@ public class GameCreatorService {
         Game game = gameHandlerService.fetchGameById(request.getActionId());
 
         // Only player2 can decline
-        // TODO: DISABLE DEVMODE WHEN DONE TESTING
-        if (!AuthorizedAction.permittedAction(request, game.getPlayerTwo(), true)) {
+        if (!authorizedAction.permittedAction(request, game.getPlayerTwo())) {
             return;
         }
 
@@ -107,7 +107,7 @@ public class GameCreatorService {
 
         // Update challenge embed
         MessageEmbed declinedEmbed = EmbedBuilderFactory.declineGameEmbed(Utils.playerNames(server, game), gameId);
-            request.getMessage().editMessageEmbeds(declinedEmbed)
+        request.getEvent().editMessageEmbeds(declinedEmbed)
             .setActionRows() // Strip Buttons
             .queue();
 
@@ -116,15 +116,17 @@ public class GameCreatorService {
     }
 
     public void startGame(Game game, Guild server, GuildChannel channel) {
-        game.setGameStatus(GameStatus.ACTIVE); // Update game status
-        game.setCurrentTurn(Utils.randomEnum(Game.Turn.class));
+        game.setGameStatus(GameStatus.WAITING_START); // Update game status
+        game.setCurrentTurn(game.getPlayerTwo());
         Player playerOne = playerHandlerService.fetchPlayer(game.getPlayerOne());
         Player playerTwo = playerHandlerService.fetchPlayer(game.getPlayerTwo());
 
         // Create and populate game boards
         List<GameBoard> gameBoards = game.getGameBoards();
         GameBoard boardOne = gameHandlerService.createBoard(game, playerOne);
+        List<MessageEmbed> boardOneEmbed = shipPlacementService.shipPlacementCreation(server, game, boardOne);
         GameBoard boardTwo = gameHandlerService.createBoard(game, playerTwo);
+        List<MessageEmbed> boardTwoEmbed = shipPlacementService.shipPlacementCreation(server, game, boardTwo);
 
         // playerOne setup
         User user1 = server.getMemberById(game.getPlayerOne()).getUser();
@@ -137,9 +139,8 @@ public class GameCreatorService {
             // Use callback to finish setting board then save
             boardOne.setChannelId(success.getId());
             gameBoards.add(boardOne);
-            game.setGameBoards(gameBoards);
             gameRepository.save(game);
-            success.sendMessageEmbeds(shipPlacementService.shipPlacementCreation(server, success.getId()))
+            success.sendMessageEmbeds(boardOneEmbed)
                 .setActionRow(
                     Button.secondary(game.getGameId() + "-RANDOMIZE", "🎲 Randomize 🎲"),
                     Button.success(game.getGameId() + "-READY", "Ready Up")
@@ -158,9 +159,8 @@ public class GameCreatorService {
             // Use callback to finish setting board then save
             boardTwo.setChannelId(success.getId());
             gameBoards.add(boardTwo);
-            game.setGameBoards(gameBoards);
             gameRepository.save(game);
-            success.sendMessageEmbeds(shipPlacementService.shipPlacementCreation(server, success.getId()))
+            success.sendMessageEmbeds(boardTwoEmbed)
                 .setActionRow(
                     Button.secondary(game.getGameId() + "-RANDOMIZE", "🎲 Randomize 🎲"),
                     Button.success(game.getGameId() + "-READY", "Ready Up")
