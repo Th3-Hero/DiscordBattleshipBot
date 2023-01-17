@@ -2,9 +2,11 @@ package com.th3hero.discordbattleshipbot.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.th3hero.discordbattleshipbot.exceptions.DiscordNullReturnException;
 import com.th3hero.discordbattleshipbot.jpa.entities.EnemyCell;
 import com.th3hero.discordbattleshipbot.jpa.entities.FriendlyCell;
 import com.th3hero.discordbattleshipbot.jpa.entities.Game;
@@ -15,6 +17,7 @@ import com.th3hero.discordbattleshipbot.repositories.GameRepository;
 
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 @Service
 @RequiredArgsConstructor
@@ -29,8 +32,9 @@ public class GameHandlerService {
      * @see <pre><code>GameHandlerService.createGame</code></pre>
      */
     public Game fetchGameById(int gameId){
-        if (gameRepository.existsById(gameId)) {
-            return gameRepository.findById(gameId).get();
+        Optional<Game> fetchedGame = gameRepository.findById(gameId);
+        if (fetchedGame.isPresent()) {
+            return fetchedGame.get();
         }
         else {
             return null;
@@ -105,7 +109,11 @@ public class GameHandlerService {
         List<GameBoard> boards = game.getGameBoards();
 
         for (GameBoard gameBoard : boards) {
-            server.getTextChannelById(gameBoard.getChannelId()).delete().queue();
+            TextChannel textChannelById = server.getTextChannelById(gameBoard.getChannelId());
+            if (textChannelById == null) {
+                throw new DiscordNullReturnException("Failed to retrieve TextChannel");
+            }
+            textChannelById.delete().queue();
         }
         gameRepository.delete(game);
     }
@@ -119,7 +127,11 @@ public class GameHandlerService {
         List<GameBoard> boards = game.getGameBoards();
 
         for (GameBoard gameBoard : boards) {
-            server.getTextChannelById(gameBoard.getChannelId()).delete().queue();
+            TextChannel textChannelById = server.getTextChannelById(gameBoard.getChannelId());
+            if (textChannelById == null) {
+                throw new DiscordNullReturnException("Failed to retrieve TextChannel");
+            }
+            textChannelById.delete().queue();
         }
         gameRepository.delete(game);
     }

@@ -15,7 +15,6 @@ import com.th3hero.discordbattleshipbot.objects.ButtonRequest;
 import com.th3hero.discordbattleshipbot.objects.Placement;
 import com.th3hero.discordbattleshipbot.objects.Placement.Direction;
 import com.th3hero.discordbattleshipbot.objects.Placement.Ship;
-import com.th3hero.discordbattleshipbot.repositories.GameRepository;
 
 import lombok.AllArgsConstructor;
 import net.dv8tion.jda.api.entities.Guild;
@@ -25,7 +24,6 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 @AllArgsConstructor
 public class ShipPlacementService {
     private GameHandlerService gameHandlerService;
-    private GameRepository gameRepository;
     private BoardDisplayService boardDisplayService;
 
     @Transactional

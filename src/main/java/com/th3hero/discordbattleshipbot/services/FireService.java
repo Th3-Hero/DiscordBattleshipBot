@@ -9,6 +9,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.th3hero.discordbattleshipbot.exceptions.DiscordNullReturnException;
 import com.th3hero.discordbattleshipbot.jpa.entities.EnemyCell;
 import com.th3hero.discordbattleshipbot.jpa.entities.FriendlyCell;
 import com.th3hero.discordbattleshipbot.jpa.entities.Game;
@@ -23,7 +24,9 @@ import com.th3hero.discordbattleshipbot.utils.Utils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
 @Service
@@ -33,7 +36,6 @@ public class FireService {
     private final GameHandlerService gameHandlerService;
     private final GameRepository gameRepository;
     private final BoardDisplayService boardDisplayService;
-    private final PlayerHandlerService playerHandlerService; // For stat use
     private final GameStateHandlerService gameStateHandlerService;
     @Value("${app.devmode:false}")
     private boolean devMode;
@@ -78,7 +80,11 @@ public class FireService {
         }
 
         Guild server = request.getServer();
-        User opponent = server.getMemberById(findOpponentId(game, requesterId)).getUser();
+        Member memberById = server.getMemberById(findOpponentId(game, requesterId));
+        if (memberById == null) {
+            throw new DiscordNullReturnException("Failed to retrieve member");
+        }
+        User opponent = memberById.getUser();
         HitEvent hitEvent = HitEvent.createEvent(
             request.getServer(),
             request.getRequester(),
@@ -96,10 +102,14 @@ public class FireService {
         displayUpdateBoards(request.getServer(), game);
     }
 
-    private void displayUpdateBoards(Guild sever, Game game) {
+    private void displayUpdateBoards(Guild server, Game game) {
         for (GameBoard board : game.getGameBoards()) {
             List<MessageEmbed> embeds = boardDisplayService.displayBoard(board);
-            sever.getTextChannelById(board.getChannelId()).sendMessageEmbeds(embeds).queue();
+            TextChannel textChannelById = server.getTextChannelById(board.getChannelId());
+            if (textChannelById == null) {
+                throw new DiscordNullReturnException("Failed to retrieve TextChannel with given id");
+            }
+            textChannelById.sendMessageEmbeds(embeds).queue();
         }
     }
 

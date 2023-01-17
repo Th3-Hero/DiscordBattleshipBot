@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -13,11 +14,10 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.th3hero.discordbattleshipbot.enums.ChannelPermissions;
-
+import com.th3hero.discordbattleshipbot.exceptions.DiscordNullReturnException;
 import com.th3hero.discordbattleshipbot.jpa.entities.Game;
 import com.th3hero.discordbattleshipbot.jpa.entities.GameBoard;
 import com.th3hero.discordbattleshipbot.jpa.entities.Player;
@@ -129,10 +129,14 @@ public class GameCreatorService {
         List<MessageEmbed> boardTwoEmbed = shipPlacementService.shipPlacementCreation(server, game, boardTwo);
 
         // playerOne setup
-        User user1 = server.getMemberById(game.getPlayerOne()).getUser();
-        String playerOneName = server.getMemberById(game.getPlayerOne()).getEffectiveName();
+        Member memberOneById = server.getMemberById(game.getPlayerOne());
+        if (memberOneById == null) {
+            throw new DiscordNullReturnException("Failed to retrieve Member");
+        }
+        User userOne = memberOneById.getUser();
+        String playerOneName = memberOneById.getEffectiveName();
         server.createTextChannel(playerOneName + "-Battleship-" + game.getGameId()) // Create channel for playerOne
-        .addMemberPermissionOverride(user1.getIdLong(), ChannelPermissions.allow(), ChannelPermissions.deny())
+        .addMemberPermissionOverride(userOne.getIdLong(), ChannelPermissions.allow(), ChannelPermissions.deny())
         .addPermissionOverride(server.getPublicRole(), null, EnumSet.of(Permission.VIEW_CHANNEL))
         .setParent(channel.getParent())
         .queue(success -> {
@@ -149,10 +153,14 @@ public class GameCreatorService {
         });
 
         // playerTwo setup
-        User user2 = server.getMemberById(game.getPlayerTwo()).getUser();
-        String playerTwoName = server.getMemberById(game.getPlayerTwo()).getEffectiveName();
+        Member memberTwoById = server.getMemberById(game.getPlayerTwo());
+        if (memberTwoById == null) {
+            throw new DiscordNullReturnException("Failed to retrieve Member");
+        }
+        User userTwo = memberTwoById.getUser();
+        String playerTwoName = memberTwoById.getEffectiveName();
         server.createTextChannel(playerTwoName + "-Battleship-" + game.getGameId()) // Create channel for playerTwo
-        .addMemberPermissionOverride(user2.getIdLong(), ChannelPermissions.allow(), ChannelPermissions.deny())
+        .addMemberPermissionOverride(userTwo.getIdLong(), ChannelPermissions.allow(), ChannelPermissions.deny())
         .addPermissionOverride(server.getPublicRole(), null, EnumSet.of(Permission.VIEW_CHANNEL))
         .setParent(channel.getParent())
         .queue(success -> {

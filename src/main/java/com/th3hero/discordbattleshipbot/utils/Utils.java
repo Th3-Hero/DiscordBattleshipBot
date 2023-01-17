@@ -2,11 +2,13 @@ package com.th3hero.discordbattleshipbot.utils;
 
 import org.jetbrains.annotations.NotNull;
 
+import com.th3hero.discordbattleshipbot.exceptions.DiscordNullReturnException;
 import com.th3hero.discordbattleshipbot.jpa.entities.Game;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -24,9 +26,14 @@ public class Utils {
      * @return List of effective player names (names may be null)
      */
     public static List<String> playerNames(final Guild server, final Game game) {
+        Member memberOneById = server.getMemberById(game.getPlayerOne());
+        Member memberTwoById = server.getMemberById(game.getPlayerTwo());
+        if (memberOneById == null || memberTwoById == null) {
+            throw new DiscordNullReturnException("Failed to retrived Member when attemping to create list of player names");
+        }
         return Arrays.asList(
-            server.getMemberById(game.getPlayerOne()).getEffectiveName(),
-            server.getMemberById(game.getPlayerTwo()).getEffectiveName()
+            memberOneById.getEffectiveName(),
+            memberTwoById.getEffectiveName()
         );
     }
 
