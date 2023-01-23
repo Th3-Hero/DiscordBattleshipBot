@@ -120,7 +120,11 @@ public class FireService {
             return -1;
         }
 
-        int letter = Utils.enumValue(Letters.class, matcher.group(1)).getRow();
+        Letters enumValue = Utils.enumValue(Letters.class, matcher.group(1));
+        if (enumValue == null) {
+            return -1;
+        }
+        int letter = enumValue.ordinal();
         int number = Integer.parseInt(matcher.group(2));
 
         return (letter * 10) + number;
@@ -134,20 +138,8 @@ public class FireService {
         }
     }
 
-    @Getter
-    @RequiredArgsConstructor
-    private enum Letters {
-        A(0),
-        B(1),
-        C(2),
-        D(3),
-        E(4),
-        F(5),
-        G(6),
-        H(7),
-        I(8),
-        J(9);
 
-        private final int row;
+    private enum Letters {
+        A, B, C, D, E, F, G, H, I, J;
     }
 }

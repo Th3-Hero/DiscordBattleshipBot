@@ -71,12 +71,9 @@ public class GameHandlerService {
      * @param player
      * @return {@code GameBoard}
      */
-    public GameBoard createBoard(Game game, Player player){
+    public GameBoard createBoard(Game game, Player player, String channelId){
 
-        GameBoard board = GameBoard.builder()
-            .player(player)
-            .game(game)
-            .build();
+        GameBoard board = GameBoard.create(game, player, channelId);
 
         board.setFriendlyCells(createFriendlyCells(board));
         board.setEnemyCells(createEnemyCells(board));

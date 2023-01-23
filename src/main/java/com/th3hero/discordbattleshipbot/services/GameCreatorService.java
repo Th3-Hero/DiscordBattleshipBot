@@ -123,10 +123,6 @@ public class GameCreatorService {
 
         // Create and populate game boards
         List<GameBoard> gameBoards = game.getGameBoards();
-        GameBoard boardOne = gameHandlerService.createBoard(game, playerOne);
-        List<MessageEmbed> boardOneEmbed = shipPlacementService.shipPlacementCreation(server, game, boardOne);
-        GameBoard boardTwo = gameHandlerService.createBoard(game, playerTwo);
-        List<MessageEmbed> boardTwoEmbed = shipPlacementService.shipPlacementCreation(server, game, boardTwo);
 
         // playerOne setup
         Member memberOneById = server.getMemberById(game.getPlayerOne());
@@ -141,7 +137,8 @@ public class GameCreatorService {
         .setParent(channel.getParent())
         .queue(success -> {
             // Use callback to finish setting board then save
-            boardOne.setChannelId(success.getId());
+            GameBoard boardOne = gameHandlerService.createBoard(game, playerOne, success.getId());
+            List<MessageEmbed> boardOneEmbed = shipPlacementService.shipPlacementCreation(server, game, boardOne);
             gameBoards.add(boardOne);
             gameRepository.save(game);
             success.sendMessageEmbeds(boardOneEmbed)
@@ -165,7 +162,8 @@ public class GameCreatorService {
         .setParent(channel.getParent())
         .queue(success -> {
             // Use callback to finish setting board then save
-            boardTwo.setChannelId(success.getId());
+            GameBoard boardTwo = gameHandlerService.createBoard(game, playerTwo, success.getId());
+            List<MessageEmbed> boardTwoEmbed = shipPlacementService.shipPlacementCreation(server, game, boardTwo);
             gameBoards.add(boardTwo);
             gameRepository.save(game);
             success.sendMessageEmbeds(boardTwoEmbed)

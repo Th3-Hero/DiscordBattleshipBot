@@ -15,6 +15,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
+import org.jetbrains.annotations.NotNull;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -48,6 +50,7 @@ public class GameBoard implements Serializable {
     @Builder.Default
     private Boolean playerReady = false;
 
+    @NotNull
     @Column
     private String channelId;
 
@@ -59,10 +62,11 @@ public class GameBoard implements Serializable {
     @OrderBy("cellIndex ASC")
     private List<EnemyCell> enemyCells;
 
-    public static GameBoard create(Game game, Player player) {
+    public static GameBoard create(Game game, Player player, String channelId) {
         return GameBoard.builder()
             .game(game)
             .player(player)
+            .channelId(channelId)
             .build();
     }
 
