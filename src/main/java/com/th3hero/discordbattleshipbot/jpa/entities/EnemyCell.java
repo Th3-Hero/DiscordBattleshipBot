@@ -36,7 +36,7 @@ import lombok.ToString;
 @IdClass(EnemyCellKey.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class EnemyCell implements Serializable{
+public class EnemyCell implements Serializable {
     @Id
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)

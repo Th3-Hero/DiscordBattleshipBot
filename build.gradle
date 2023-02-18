@@ -4,6 +4,10 @@ plugins {
 	id 'io.spring.dependency-management' version "${springDependencyManagementVersion}"
 }
 
+springBoot {
+    buildInfo()
+}
+
 group = 'com.th3hero'
 sourceCompatibility = 17
 version = '1.0.0'

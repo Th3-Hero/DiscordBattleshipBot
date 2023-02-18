@@ -10,29 +10,29 @@ import net.dv8tion.jda.api.entities.User;
 
 @Getter
 @Builder
-public class HitEvent {
+public class ShotEvent {
     private Guild server;
     private User currentPlayer;
     private User opponent;
     private Game game;
-    private Ship shipHit;
+    private Ship shipType;
     private String hitSquare;
 
 
-    public static HitEvent createEvent(
-        final Guild server, 
-        final User currentPlayer, 
-        final User opponent, 
-        final Game game, 
-        final Ship shipHit, 
+    public static ShotEvent createEvent(
+        final Guild server,
+        final User currentPlayer,
+        final User opponent,
+        final Game game,
+        final Ship shipType,
         final String hitSquare
-        ) {
-            return HitEvent.builder()
+    ) {
+        return ShotEvent.builder()
             .server(server)
             .currentPlayer(currentPlayer)
             .opponent(opponent)
             .game(game)
-            .shipHit(shipHit)
+            .shipType(shipType)
             .hitSquare(hitSquare)
             .build();
     }

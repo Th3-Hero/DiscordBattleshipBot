@@ -28,7 +28,7 @@ public class AuthorizedAction {
             return true;
         } else {
             request.getEvent().reply("You cannot preform this action.")
-            .setEphemeral(true).queue();
+                .setEphemeral(true).queue();
             return false;
         }
     }

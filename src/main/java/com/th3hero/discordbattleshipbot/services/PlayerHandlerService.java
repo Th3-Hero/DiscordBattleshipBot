@@ -18,11 +18,7 @@ public class PlayerHandlerService {
      * @return Never Null {@code Player}
      */
     public Player fetchPlayer(String playerId){
-        if (playerRepository.existsById(playerId)) {
-            return playerRepository.findById(playerId).get();
-        }
-        else {
-            return playerRepository.save(Player.create(playerId));
-        }
+        return playerRepository.findById(playerId)
+            .orElse(playerRepository.save(Player.create(playerId)));
     }
 }

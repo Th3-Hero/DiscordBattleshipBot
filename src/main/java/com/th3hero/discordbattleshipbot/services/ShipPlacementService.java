@@ -15,6 +15,7 @@ import com.th3hero.discordbattleshipbot.objects.ButtonRequest;
 import com.th3hero.discordbattleshipbot.objects.Placement;
 import com.th3hero.discordbattleshipbot.objects.Placement.Direction;
 import com.th3hero.discordbattleshipbot.objects.Placement.Ship;
+import com.th3hero.discordbattleshipbot.utils.Utils;
 
 import lombok.AllArgsConstructor;
 import net.dv8tion.jda.api.entities.Guild;
@@ -72,16 +73,16 @@ public class ShipPlacementService {
         int shipFrontIndex = placement.getCellIndex();
 
         if (placement.getDirection().equals(Placement.Direction.HORIZONTAL)
-            && !sameRow(shipFrontIndex, (shipFrontIndex + shipSize) + 1.00)) {
+            && !sameRow(shipFrontIndex, (shipFrontIndex + shipSize) + Utils.H_ROW_INCREMENT)) {
             return false;
         }
 
 
         List<FriendlyCell> validPlacement = new ArrayList<>();
         for (int i = 0; i < shipSize; i++) {
-            int cellIndex = shipFrontIndex + (shipDirection.getValue() * i);
+            int cellIndex = shipFrontIndex + (shipDirection.getCellIndexStep() * i);
             // Check if cell is within bounds
-            if (cellIndex > 99 || cellIndex < 0) {
+            if (cellIndex > (Utils.MAX_INCLUSIVE_CELLS - 1) || cellIndex < 0) {
                 return false;
             }
 
@@ -90,30 +91,30 @@ public class ShipPlacementService {
                 // if front cell of ship
                 if (i == 0
                     // check if the cell in front of ship is in bounds(false if cellIndex is 0, cellIndex -1 doesn't exist)
-                    && cellIndex - 1 > 0
+                    && cellIndex - Utils.H_ROW_INCREMENT > 0
                     // Prevent check if it will wrap to next row
                     && sameRow(cellIndex, cellIndex - 1.0)
                     // check if that cell in front of ship is another ship
-                    && cellList.get(cellIndex - 1).getCellStatus().equals(FriendlyCell.CellStatus.SHIP)) {
+                    && cellList.get(cellIndex - Utils.H_ROW_INCREMENT).getCellStatus().equals(FriendlyCell.CellStatus.SHIP)) {
                     return false;
                 }
                 // if back cell of ship
-                if (i == (shipSize - 1)
+                if (i == (shipSize - Utils.H_ROW_INCREMENT)
                     // check if cell behind ship is in bounds(will trigger if cellIndex is 99, cellIndex 100 doesn't exist)
-                    && (cellIndex + 1) < 99
+                    && (cellIndex + Utils.H_ROW_INCREMENT) < (Utils.MAX_INCLUSIVE_CELLS - 1)
                     // Prevent check if it will wrap to next row
                     && sameRow(cellIndex, cellIndex + 1.0)
                     // check if cell behind ship is another ship
-                    && cellList.get(cellIndex + 1).getCellStatus().equals(FriendlyCell.CellStatus.SHIP)) {
+                    && cellList.get(cellIndex + Utils.H_ROW_INCREMENT).getCellStatus().equals(FriendlyCell.CellStatus.SHIP)) {
                     return false;
                 }
 
                 // Below cell is inbounds and blocked by another ship
-                if ((cellIndex + 10 < 99) && cellList.get(cellIndex + 10).getCellStatus().equals(FriendlyCell.CellStatus.SHIP)) {
+                if ((cellIndex + Utils.V_ROW_INCREMENT < (Utils.MAX_INCLUSIVE_CELLS - 1)) && cellList.get(cellIndex + Utils.V_ROW_INCREMENT).getCellStatus().equals(FriendlyCell.CellStatus.SHIP)) {
                     return false;
                 }
                 // Above cell is inbounds and blocked by another ship
-                if ((cellIndex - 10 > 0) && cellList.get(cellIndex - 10).getCellStatus().equals(FriendlyCell.CellStatus.SHIP)) {
+                if ((cellIndex - Utils.V_ROW_INCREMENT > 0) && cellList.get(cellIndex - Utils.V_ROW_INCREMENT).getCellStatus().equals(FriendlyCell.CellStatus.SHIP)) {
                     return false;
                 }
             }
@@ -122,32 +123,32 @@ public class ShipPlacementService {
                 // if front cell of ship
                 if (i == 0
                     // check if the cell in front of ship is in bounds
-                    && (cellIndex - 10) > 0
+                    && (cellIndex - Utils.V_ROW_INCREMENT) > 0
                     // check if that cell in front of ship is another ship
-                    && cellList.get(cellIndex - 10).getCellStatus().equals(FriendlyCell.CellStatus.SHIP)) {
+                    && cellList.get(cellIndex - Utils.V_ROW_INCREMENT).getCellStatus().equals(FriendlyCell.CellStatus.SHIP)) {
                     return false;
                 }
                 // if back cell of ship
-                if (i == (shipSize - 1)
+                if (i == (shipSize - Utils.H_ROW_INCREMENT)
                     // check if cell behind ship is in bounds
-                    && (cellIndex + 10) < 99
+                    && (cellIndex + Utils.V_ROW_INCREMENT) < (Utils.MAX_INCLUSIVE_CELLS - 1)
                     // check if cell behind ship is another ship
-                    && cellList.get(cellIndex + 10).getCellStatus().equals(FriendlyCell.CellStatus.SHIP)) {
+                    && cellList.get(cellIndex + Utils.V_ROW_INCREMENT).getCellStatus().equals(FriendlyCell.CellStatus.SHIP)) {
                     return false;
                 }
 
                 // Left Side blocked
-                if ((cellIndex - 1) > 0 
+                if ((cellIndex - Utils.H_ROW_INCREMENT) > 0 
                     // Prevent check if it will wrap to next row
                     && sameRow(cellIndex, cellIndex - 1.0)
-                    && cellList.get(cellIndex - 1).getCellStatus().equals(FriendlyCell.CellStatus.SHIP)) {
+                    && cellList.get(cellIndex - Utils.H_ROW_INCREMENT).getCellStatus().equals(FriendlyCell.CellStatus.SHIP)) {
                     return false;
                 }
                 // Right Side blocked
-                if ((cellIndex + 1) < 99 
+                if ((cellIndex + Utils.H_ROW_INCREMENT) < (Utils.MAX_INCLUSIVE_CELLS - 1)
                     // Prevent check if it will wrap to next row
                     && sameRow(cellIndex, cellIndex + 1.0)
-                    && cellList.get(cellIndex + 1).getCellStatus().equals(FriendlyCell.CellStatus.SHIP)) {
+                    && cellList.get(cellIndex + Utils.H_ROW_INCREMENT).getCellStatus().equals(FriendlyCell.CellStatus.SHIP)) {
                     return false;
                 }
             }
@@ -175,8 +176,8 @@ public class ShipPlacementService {
      * @return <pre><code>boolean</code></pre>
      */
     private boolean sameRow(double indexOne, double indexTwo) {
-        double firstRow = Math.ceil((indexOne + 1) / 10.0);
-        double secondRow = Math.ceil((indexTwo + 1) / 10.0);
+        double firstRow = Math.ceil((indexOne + 1) / Utils.V_ROW_INCREMENT);
+        double secondRow = Math.ceil((indexTwo + 1) / Utils.V_ROW_INCREMENT);
         return firstRow == secondRow;
     }
 }

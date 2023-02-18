@@ -21,7 +21,7 @@ public class Placement {
     }
 
     public static Placement createRandom(Ship ship) {
-        Integer cellIndex = new SecureRandom().nextInt(0, 99 + 1);
+        Integer cellIndex = new SecureRandom().nextInt(0, Utils.MAX_INCLUSIVE_CELLS);
         return location(cellIndex, ship, Utils.randomEnum(Direction.class));
     }
 
@@ -49,9 +49,9 @@ public class Placement {
     @Getter
     @RequiredArgsConstructor
     public enum Direction {
-        HORIZONTAL(1),
-        VERTICAL(10);
+        HORIZONTAL(Utils.H_ROW_INCREMENT),
+        VERTICAL(Utils.V_ROW_INCREMENT);
 
-        private final int value;
+        private final int cellIndexStep;
     }
 }

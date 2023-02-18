@@ -2,7 +2,7 @@ package com.th3hero.discordbattleshipbot.utils;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.th3hero.discordbattleshipbot.exceptions.DiscordNullReturnException;
+import com.th3hero.discordbattleshipbot.exceptions.InaccessibleMemberException;
 import com.th3hero.discordbattleshipbot.jpa.entities.Game;
 
 import lombok.AccessLevel;
@@ -18,6 +18,17 @@ import org.apache.commons.lang3.StringUtils;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Utils {
+    /** Horizontal Row Increment <p>
+     * Positive for cell to the right
+     * Negative for cell to the left
+    */
+    public static final int H_ROW_INCREMENT = 1;
+    /** Vertical Row Increment <p>
+     * Positive for cell below
+     * Negative for cell to the above
+    */
+    public static final int V_ROW_INCREMENT = 10;
+    public static final int MAX_INCLUSIVE_CELLS = 100;
 
     /**
      * Find effective player names for both players in a game.
@@ -29,7 +40,7 @@ public class Utils {
         Member memberOneById = server.getMemberById(game.getPlayerOne());
         Member memberTwoById = server.getMemberById(game.getPlayerTwo());
         if (memberOneById == null || memberTwoById == null) {
-            throw new DiscordNullReturnException("Failed to retrived Member when attemping to create list of player names");
+            throw new InaccessibleMemberException("Failed to retrieved Member when attempting to create list of player names");
         }
         return Arrays.asList(
             memberOneById.getEffectiveName(),
@@ -37,6 +48,7 @@ public class Utils {
         );
     }
 
+    // TODO: fix documentation
     /**
      * Null safe, case-insensitive {@code valueOf} call. If the value is null, empty or invalid, then the provided default value is used.
      *

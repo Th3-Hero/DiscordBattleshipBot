@@ -7,7 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import com.th3hero.discordbattleshipbot.controllers.MessageController;
+import com.th3hero.discordbattleshipbot.controllers.ButtonController;
+import com.th3hero.discordbattleshipbot.controllers.TextController;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -24,12 +25,13 @@ public class DiscordBattleshipBotSetup {
     private String token;
 
     @Bean
-    public JDA discordClient(MessageController controller) throws GeneralSecurityException {
+    public JDA discordClient(TextController textController, ButtonController buttonController) throws GeneralSecurityException {
         return JDABuilder.createDefault(token, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES)
             .setMemberCachePolicy(MemberCachePolicy.ALL)
             .setChunkingFilter(ChunkingFilter.ALL)
             .disableCache(CacheFlag.VOICE_STATE, CacheFlag.EMOTE)
-            .addEventListeners(controller)
+            .addEventListeners(textController)
+            .addEventListeners(buttonController)
             .setActivity(Activity.playing("Battleship"))
             .build();
     }

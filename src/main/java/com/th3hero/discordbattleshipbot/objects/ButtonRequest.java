@@ -10,7 +10,6 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.th3hero.discordbattleshipbot.utils.Utils;
 
@@ -25,13 +24,15 @@ public class ButtonRequest {
     private int actionId;
     private ButtonClickEvent event;
 
+    // TODO: write javadoc for this
+    // actionId should be gone, figure out what I need and remove others, clean this up
+
     public static ButtonRequest create(final ButtonClickEvent event) {
         // Get raw id from the button
         final String rawId = event.getComponentId();
         // Split the useable id and action apart
-        final List<String> idSplits = Arrays.stream(rawId.strip().split("-"))
-            .collect(Collectors.toList());
-        
+        final List<String> idSplits = Arrays.stream(rawId.strip().split("-")).toList();
+
         final String action = idSplits.get(1); // the action the button preforms
         final int actionId = Integer.parseInt(idSplits.get(0)); // the id to link the button to a previous action
         return request(event, action, actionId);

@@ -4,7 +4,6 @@ import javax.annotation.Nonnull;
 
 import org.springframework.stereotype.Controller;
 
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -23,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-public class MessageController extends ListenerAdapter {
+public class TextController extends ListenerAdapter {
     private final GameCreatorService gameCreator;
     private final GameHandlerService gameHandlerService;
     private final ShipPlacementService shipPlacementService;
@@ -49,28 +48,12 @@ public class MessageController extends ListenerAdapter {
         }
     }
 
-    @Override
-    public void onButtonClick(@Nonnull final ButtonClickEvent event) {
-        try {
-            final ButtonRequest request = ButtonRequest.create(event);
-            if (request.getAction() == null) {
-                return;
-            }
-            buttonHandler(request);
-
-        } catch (Exception e) {
-            log.error("onButtonClick", e);
-            event.getChannel().sendMessage("Something went impossibly wrong... well I guess it was possible").queue();
-        }
-    }
-
     /**
      * Directs all text commands
      * @param request
      */
     public void commandHandler(final CommandRequest request) {
         switch (request.getCommand()) {
-            case PING -> Ping.pingBot(request.getChannel());
             case HELP -> Help.displayHelpMessage(request.getChannel());
             case CHALLENGE -> gameCreator.gameRequest(request);
             case DELETE -> gameHandlerService.deleteGame(request);

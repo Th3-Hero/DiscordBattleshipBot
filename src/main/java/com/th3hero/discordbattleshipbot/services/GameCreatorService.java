@@ -17,7 +17,7 @@ import javax.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import com.th3hero.discordbattleshipbot.enums.ChannelPermissions;
-import com.th3hero.discordbattleshipbot.exceptions.DiscordNullReturnException;
+import com.th3hero.discordbattleshipbot.exceptions.InaccessibleMemberException;
 import com.th3hero.discordbattleshipbot.jpa.entities.Game;
 import com.th3hero.discordbattleshipbot.jpa.entities.GameBoard;
 import com.th3hero.discordbattleshipbot.jpa.entities.Player;
@@ -127,7 +127,7 @@ public class GameCreatorService {
         // playerOne setup
         Member memberOneById = server.getMemberById(game.getPlayerOne());
         if (memberOneById == null) {
-            throw new DiscordNullReturnException("Failed to retrieve Member");
+            throw new InaccessibleMemberException("Failed to retrieve Member");
         }
         User userOne = memberOneById.getUser();
         String playerOneName = memberOneById.getEffectiveName();
@@ -152,7 +152,7 @@ public class GameCreatorService {
         // playerTwo setup
         Member memberTwoById = server.getMemberById(game.getPlayerTwo());
         if (memberTwoById == null) {
-            throw new DiscordNullReturnException("Failed to retrieve Member");
+            throw new InaccessibleMemberException("Failed to retrieve Member");
         }
         User userTwo = memberTwoById.getUser();
         String playerTwoName = memberTwoById.getEffectiveName();

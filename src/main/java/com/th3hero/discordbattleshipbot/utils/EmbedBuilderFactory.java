@@ -16,145 +16,154 @@ import lombok.RequiredArgsConstructor;
  * Contains methods for creating various embeds the bot uses.
  */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class EmbedBuilderFactory {
-    private static String embedTitle = "Battleship";
-    private static String gameEmbed = "GameID #";
-    private static Color green = new Color(0, 255, 0);
-    private static Color red = new Color(255, 8, 0);
-    private static Color blue = new Color(3, 123, 252);
-
+public final class EmbedBuilderFactory {
+    private static final String EMBED_TITLE = "Battleship";
+    private static final String GAME_EMBED = "GameID #";
+    private static final Color GREEN = new Color(0, 255, 0);
+    private static final Color RED = new Color(255, 8, 0);
+    private static final Color BLUE = new Color(3, 123, 252);
 
     /**
-     * Generates embed for a game that has been accepted.
-     * @param playerOneName -PlayerOne's effective name
-     * @param playerTwoName -PlayerTwo's effective name
-     * @param gameId -Game ID
-     * @return <pre><code>MessageEmbed</code></pre>
+     * Accept Game Embed
+     * @param names List of player names involved in the game
+     * @param gameId
+     * @return
      */
     public static MessageEmbed acceptGameEmbed(List<String> names, String gameId) {
         return new EmbedBuilder()
-        .setColor(green)
-        .setTitle(embedTitle)
-        .addField(
-            StringUtil.escapeSpecialCharacters(names.get(0)) + " vs " + StringUtil.escapeSpecialCharacters(names.get(1)),
-            "PUT STATS REEEEE",
-            false)
-        .setFooter(gameEmbed + gameId)
-        .build();
+            .setColor(GREEN)
+            .setTitle(EMBED_TITLE)
+            .addField(
+                StringUtil.escapeSpecialCharacters(names.get(0)) + " vs " + StringUtil.escapeSpecialCharacters(names.get(1)),
+                "PUT STATS REEEEE",
+                false)
+            .setFooter(GAME_EMBED + gameId)
+            .build();
     }
 
     /**
-     * Generates embed for a game that has been declined.
-     * @param playerOneName -PlayerOne's effective name
-     * @param playerTwoName -PlayerTwo's effective name
-     * @param gameId -Game ID
-     * @return <pre><code>MessageEmbed</code></pre>
+     * Accept Game Embed
+     * @param names List of player names involved in the game
+     * @param gameId
+     * @return
      */
     public static MessageEmbed declineGameEmbed(List<String> names, String gameId) {
         return new EmbedBuilder()
-        .setColor(red)
-        .setTitle(embedTitle)
-        .addField(
-            StringUtil.escapeSpecialCharacters(names.get(0)) + " vs " + StringUtil.escapeSpecialCharacters(names.get(1)),
-            StringUtil.toBold(StringUtil.escapeSpecialCharacters(names.get(1))) + " declined the match.",
-            false
-        )
-        .setFooter(gameEmbed + gameId)
-        .build();
+            .setColor(RED)
+            .setTitle(EMBED_TITLE)
+            .addField(
+                StringUtil.escapeSpecialCharacters(names.get(0)) + " vs " + StringUtil.escapeSpecialCharacters(names.get(1)),
+                StringUtil.toBold(StringUtil.escapeSpecialCharacters(names.get(1))) + " declined the match.",
+                false
+            )
+            .setFooter(GAME_EMBED + gameId)
+            .build();
     }
 
     /**
-     * Generates embed for a new challenge.
-     * @param playerOneName -PlayerOne's effective name
-     * @param playerTwoName -PlayerTwo's effective name
-     * @param gameId -Game ID
-     * @return <pre><code>MessageEmbed</code></pre>
+     * Embed for when a player creates a challenge
+     * @param names List with challenger and challenged player
+     * @param gameId
+     * @return
      */
     public static MessageEmbed challengeRequestBuilder(List<String> names, String gameId) {
         return new EmbedBuilder()
-        .setColor(blue)
-        .setTitle(embedTitle)
-        .addField(
-            StringUtil.escapeSpecialCharacters(names.get(0)) + " vs " + StringUtil.escapeSpecialCharacters(names.get(1)),
-            "Stats",
-            false)
-        .addField(
-            "",
-            StringUtil.toBold(StringUtil.escapeSpecialCharacters(names.get(1))) + " do you choose to accept?",
-            false
-        )
-        .setFooter(gameEmbed + gameId)
-        .build();
+            .setColor(BLUE)
+            .setTitle(EMBED_TITLE)
+            .addField(
+                StringUtil.escapeSpecialCharacters(names.get(0)) + " vs " + StringUtil.escapeSpecialCharacters(names.get(1)),
+                "Stats",
+                false)
+            .addField(
+                "",
+                StringUtil.toBold(StringUtil.escapeSpecialCharacters(names.get(1))) + " do you choose to accept?",
+                false
+            )
+            .setFooter(GAME_EMBED + gameId)
+            .build();
     }
 
+    /**
+     * Embed to display a players board with it's grids
+     * @param gridOne Friendly Grid
+     * @param gridTwo Enemy Grid
+     * @return
+     */
     public static List<MessageEmbed> boardDisplay(String gridOne, String gridTwo) {
         List<MessageEmbed> embeds = new ArrayList<>();
         embeds.add(
             new EmbedBuilder()
-            .setColor(red)
-            .addField(
-                "Enemy Board",
-                gridTwo,
-                false
-            )
-            .build()
+                .setColor(RED)
+                .addField(
+                    "Enemy Board",
+                    gridTwo,
+                    false
+                )
+                .build()
         );
 
         embeds.add(
             new EmbedBuilder()
-            .setColor(green)
-            .addField(
-                "Your Board",
-                gridOne,
-                false
-            )
-            .build()
+                .setColor(GREEN)
+                .addField(
+                    "Your Board",
+                    gridOne,
+                    false
+                )
+                .build()
         );
 
         return embeds;
     }
 
+    /**
+     * Header for a new game
+     * @param names
+     * @return
+     */
     public static MessageEmbed boardHeader(List<String> names) {
         return new EmbedBuilder()
-        .setTitle(names.get(0) + " vs " + names.get(1))
-        .setDescription("description")
-        .setColor(blue)
-        .build();
+            .setTitle(names.get(0) + " vs " + names.get(1))
+            .setDescription("description")
+            .setColor(BLUE)
+            .build();
     }
 
+    /**
+     * Display who sunk who's ship and at what position on the board
+     * @param playerWhoSunkName
+     * @param playerWhoGotSunkName
+     * @param ship
+     * @param position
+     * @return
+     */
     public static MessageEmbed shipSunkEmbed(String playerWhoSunkName, String playerWhoGotSunkName, Ship ship, String position) {
         return new EmbedBuilder()
-        .setColor(blue)
-        .setTitle(ship + " Sunk!")
-        .setDescription(playerWhoSunkName + " sunk " + playerWhoGotSunkName + "'s " + ship.name().toLowerCase() + " at " + position)
-        .build();
+            .setColor(BLUE)
+            .setTitle(ship + " Sunk!")
+            .setDescription(playerWhoSunkName + " sunk " + playerWhoGotSunkName + "'s " + ship.name().toLowerCase() + " at " + position)
+            .build();
     }
 
     // TODO: Add stats about the match
     public static MessageEmbed gameOver(String winner) {
         return new EmbedBuilder()
-        .setColor(blue)
-        .setTitle("Game Over")
-        .addField(
-            winner + " is the winner!!!",
-            "Some Text",
-            false
-        )
-        .build();
+            .setColor(BLUE)
+            .setTitle("Game Over")
+            .addField(
+                "%s is the winner!!!".formatted(winner),
+                "Some Text",
+                false
+            )
+            .build();
     }
 
     public static MessageEmbed gameStart(boolean isTurn) {
-        String description;
-        if (isTurn) {
-            description = "It is your turn";
-        }
-        else {
-            description = "It is the opponents turn";
-        }
+        String description = isTurn ? "It is your turn" : "It is the opponents turn";
         return new EmbedBuilder()
-        .setColor(blue)
-        .setTitle("Game has started!")
-        .setDescription(description)
-        .build();
+            .setColor(BLUE)
+            .setTitle("Game has started!")
+            .setDescription(description)
+            .build();
     }
 }

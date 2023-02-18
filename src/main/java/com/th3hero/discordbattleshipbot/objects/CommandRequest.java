@@ -40,6 +40,7 @@ public class CommandRequest {
         return request(message, command, token, arguments);
     }
 
+    // TODO: trim more unneeded stuff
     public static CommandRequest request(final Message message, final String command, final String token, final List<String> arguments) {
         return CommandRequest.builder()
             .requester(message.getAuthor())
@@ -48,6 +49,7 @@ public class CommandRequest {
             .channel(message.getChannel())
             .message(message)
             .command(Utils.enumValue(Command.class, command))
+            // TODO: fail fast, return before building object when it comes to token
             .validToken(token.equals("$"))
             .arguments(arguments)
             .build();
@@ -55,7 +57,6 @@ public class CommandRequest {
 
     public enum Command {
         HELP,
-        PING,
         CHALLENGE,
         DELETE,
         FIRE;

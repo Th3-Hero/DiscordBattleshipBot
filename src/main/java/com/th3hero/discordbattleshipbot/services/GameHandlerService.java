@@ -2,11 +2,10 @@ package com.th3hero.discordbattleshipbot.services;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.th3hero.discordbattleshipbot.exceptions.DiscordNullReturnException;
+import com.th3hero.discordbattleshipbot.exceptions.InaccessibleChannelException;
 import com.th3hero.discordbattleshipbot.jpa.entities.EnemyCell;
 import com.th3hero.discordbattleshipbot.jpa.entities.FriendlyCell;
 import com.th3hero.discordbattleshipbot.jpa.entities.Game;
@@ -14,6 +13,8 @@ import com.th3hero.discordbattleshipbot.jpa.entities.GameBoard;
 import com.th3hero.discordbattleshipbot.jpa.entities.Player;
 import com.th3hero.discordbattleshipbot.objects.CommandRequest;
 import com.th3hero.discordbattleshipbot.repositories.GameRepository;
+import com.th3hero.discordbattleshipbot.utils.FindUtil;
+import com.th3hero.discordbattleshipbot.utils.Utils;
 
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Guild;
@@ -23,6 +24,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 @RequiredArgsConstructor
 public class GameHandlerService {
     private final GameRepository gameRepository;
+    // TODO: redo javdoc for these
 
     /**
      * Attempts to fetch {@code Game}, if non exist returns {@code null}
@@ -32,13 +34,8 @@ public class GameHandlerService {
      * @see <pre><code>GameHandlerService.createGame</code></pre>
      */
     public Game fetchGameById(int gameId){
-        Optional<Game> fetchedGame = gameRepository.findById(gameId);
-        if (fetchedGame.isPresent()) {
-            return fetchedGame.get();
-        }
-        else {
-            return null;
-        }
+        return gameRepository.findById(gameId)
+            .orElse(null);
     }
 
     /**
@@ -47,9 +44,7 @@ public class GameHandlerService {
      * @return {@code Game} or {@code null}
      */
     public Game fetchGameByChannelId(String channelId) {
-        return gameRepository.findAll().stream()
-            .filter(game -> game.getGameBoards().stream().anyMatch(board -> board.getChannelId().equals(channelId)))
-            .findFirst()
+        return gameRepository.findGameByGameBoardWithChannelId(channelId)
             .orElse(null);
     }
 
@@ -108,7 +103,7 @@ public class GameHandlerService {
         for (GameBoard gameBoard : boards) {
             TextChannel textChannelById = server.getTextChannelById(gameBoard.getChannelId());
             if (textChannelById == null) {
-                throw new DiscordNullReturnException("Failed to retrieve TextChannel");
+                throw new InaccessibleChannelException("Failed to retrieve TextChannel");
             }
             textChannelById.delete().queue();
         }
@@ -126,13 +121,26 @@ public class GameHandlerService {
         for (GameBoard gameBoard : boards) {
             TextChannel textChannelById = server.getTextChannelById(gameBoard.getChannelId());
             if (textChannelById == null) {
-                throw new DiscordNullReturnException("Failed to retrieve TextChannel");
+                throw new InaccessibleChannelException("Failed to retrieve TextChannel");
             }
             textChannelById.delete().queue();
         }
         gameRepository.delete(game);
     }
 
+    // private <T> List<T> createCells(GameBoard gameBoard, Class<T> cellType) {
+    //     List<T> cells = new ArrayList<>();
+    //     for (int i = 0; i < 100; i++) {
+    //         Cel cell = cellType.builder()
+    //             .gameBoard(gameBoard)
+    //             .cellIndex(i)
+    //             .build();
+    //         cells.add(cell);
+    //     }
+    //     return cells;
+    // }
+
+    // TODO: can these be more generic?
     /**
      * Helper to populate friendly grid on {@code GameBoard}
      * @param gameBoard
@@ -140,7 +148,7 @@ public class GameHandlerService {
      */
     private List<FriendlyCell> createFriendlyCells(GameBoard gameBoard) {
         List<FriendlyCell> cells = new ArrayList<>();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < Utils.MAX_INCLUSIVE_CELLS; i++) {
             FriendlyCell cell = FriendlyCell.builder()
                 .gameBoard(gameBoard)
                 .cellIndex(i)
@@ -157,7 +165,7 @@ public class GameHandlerService {
      */
     private List<EnemyCell> createEnemyCells(GameBoard gameBoard) {
         List<EnemyCell> cells = new ArrayList<>();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < Utils.MAX_INCLUSIVE_CELLS; i++) {
             EnemyCell cell = EnemyCell.builder()
                 .gameBoard(gameBoard)
                 .cellIndex(i)

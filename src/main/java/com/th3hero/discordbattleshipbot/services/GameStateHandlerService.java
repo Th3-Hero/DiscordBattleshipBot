@@ -6,13 +6,14 @@ import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
-import com.th3hero.discordbattleshipbot.exceptions.DiscordNullReturnException;
+import com.th3hero.discordbattleshipbot.exceptions.InaccessibleChannelException;
+import com.th3hero.discordbattleshipbot.exceptions.InaccessibleMemberException;
 import com.th3hero.discordbattleshipbot.jpa.entities.FriendlyCell;
 import com.th3hero.discordbattleshipbot.jpa.entities.Game;
 import com.th3hero.discordbattleshipbot.jpa.entities.GameBoard;
 import com.th3hero.discordbattleshipbot.jpa.entities.Game.GameStatus;
 import com.th3hero.discordbattleshipbot.objects.ButtonRequest;
-import com.th3hero.discordbattleshipbot.objects.HitEvent;
+import com.th3hero.discordbattleshipbot.objects.ShotEvent;
 import com.th3hero.discordbattleshipbot.objects.Placement.Ship;
 import com.th3hero.discordbattleshipbot.utils.EmbedBuilderFactory;
 import com.th3hero.discordbattleshipbot.utils.FindUtil;
@@ -30,10 +31,10 @@ import net.dv8tion.jda.api.interactions.components.Button;
 public class GameStateHandlerService {
     private final GameHandlerService gameHandlerService;
 
-    public void sunkStateHandler(HitEvent hitEvent) {
+    public void sunkStateHandler(ShotEvent hitEvent) {
 
         List<FriendlyCell> opponentFriendlyGrid = FindUtil.findGameboardByPlayerId(hitEvent.getGame(), hitEvent.getOpponent().getId()).getFriendlyCells();
-        Ship currentShip = hitEvent.getShipHit();
+        Ship currentShip = hitEvent.getShipType();
         if (isSunk(opponentFriendlyGrid, currentShip)) {
             shipSunk(hitEvent);
         }
@@ -84,7 +85,7 @@ public class GameStateHandlerService {
         for (GameBoard board : game.getGameBoards()) {
             TextChannel textChannelById = server.getTextChannelById(board.getChannelId());
             if (textChannelById == null) {
-                throw new DiscordNullReturnException("Failed to retrieve TextChannel when attemping to send starting embeds");
+                throw new InaccessibleChannelException("Failed to retrieve TextChannel when attemping to send starting embeds");
             }
             textChannelById.sendMessageEmbeds(
                 EmbedBuilderFactory.gameStart(board.getPlayer().getPlayerId().equals(game.getCurrentTurn()))
@@ -97,30 +98,30 @@ public class GameStateHandlerService {
         gameHandlerService.deleteGame(request.getChannel().getId(), request.getServer());
     }
 
-    private void shipSunk(HitEvent hitEvent) {
+    private void shipSunk(ShotEvent hitEvent) {
         Guild server = hitEvent.getServer();
         Member memberWhoSunkById = server.getMemberById(hitEvent.getCurrentPlayer().getId());
         if (memberWhoSunkById == null) {
-            throw new DiscordNullReturnException("Failed to retrieve Member who got sunk");
+            throw new InaccessibleMemberException("Failed to retrieve Member who got sunk");
         }
         String playerWhoSunkName = memberWhoSunkById.getEffectiveName();
         Member memberWhoGotSunkById = server.getMemberById(hitEvent.getOpponent().getId());
         if (memberWhoGotSunkById == null) {
-            throw new DiscordNullReturnException("Failed to retrieve Member who sunk opponent");
+            throw new InaccessibleMemberException("Failed to retrieve Member who sunk opponent");
         }
         String playerWhoGotSunkName = memberWhoGotSunkById.getEffectiveName();
         String cellHit = hitEvent.getHitSquare();
-        MessageEmbed embed = EmbedBuilderFactory.shipSunkEmbed(playerWhoSunkName, playerWhoGotSunkName, hitEvent.getShipHit(), cellHit);
+        MessageEmbed embed = EmbedBuilderFactory.shipSunkEmbed(playerWhoSunkName, playerWhoGotSunkName, hitEvent.getShipType(), cellHit);
         for (GameBoard board : hitEvent.getGame().getGameBoards()) {
             TextChannel textChannelById = server.getTextChannelById(board.getChannelId());
             if (textChannelById == null) {
-                throw new DiscordNullReturnException("Failed to retrieve TextChannel when attempting to send sunk embeds");
+                throw new InaccessibleChannelException("Failed to retrieve TextChannel when attempting to send sunk embeds");
             }
             textChannelById.sendMessageEmbeds(embed).queue();
         }
     }
 
-    private void endGame(HitEvent hitEvent) {
+    private void endGame(ShotEvent hitEvent) {
         Game game = hitEvent.getGame();
         game.setGameStatus(GameStatus.ENDED);
         game.setCurrentTurn(null);
@@ -128,14 +129,14 @@ public class GameStateHandlerService {
         Guild server = hitEvent.getServer();
         Member member = server.getMember(hitEvent.getCurrentPlayer());
         if (member == null) {
-            throw new DiscordNullReturnException("Failed to retrieve Member");
+            throw new InaccessibleMemberException("Failed to retrieve Member");
         }
         String winnerName = member.getEffectiveName();
         MessageEmbed embed = EmbedBuilderFactory.gameOver(winnerName);
         for (GameBoard board: hitEvent.getGame().getGameBoards()) {
             TextChannel textChannelById = server.getTextChannelById(board.getChannelId());
             if (textChannelById == null) {
-                throw new DiscordNullReturnException("Failed to retrieve TextChannel when attemping to send winner embed");
+                throw new InaccessibleChannelException("Failed to retrieve TextChannel when attemping to send winner embed");
             }
             textChannelById.sendMessageEmbeds(embed)
                 .setActionRow(
